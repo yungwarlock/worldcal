@@ -1,6 +1,6 @@
 import psycopg2
 
-from calendar_index.event import Event
+from event import Event
 
 db_name = 'example'
 db_user = 'postgres'

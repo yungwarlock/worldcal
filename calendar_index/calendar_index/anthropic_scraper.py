@@ -5,7 +5,7 @@ import logging
 import anthropic
 from tenacity import retry, stop_after_attempt, before_log
 
-from calendar_index.event import Event
+from event import Event
 
 
 logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)

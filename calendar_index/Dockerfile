@@ -13,10 +13,6 @@ COPY pyproject.toml poetry.lock ./
 
 RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --without dev --no-root
 
-COPY README.md README.md
-COPY calendar_index calendar_index
-RUN /app/.venv/bin/python -m pip install . --no-deps
-
 FROM python:3.10-slim-buster as runtime
 
 WORKDIR /app
@@ -29,8 +25,10 @@ ENV VIRTUAL_ENV=/app/.venv \
     PATH="/app/.venv/bin:$PATH"
 
 COPY start.sh start.sh
-COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 COPY calendar_index calendar_index
+COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
+
+WORKDIR /app/calendar_index
 
 # Copy Tailscale binaries from the tailscale image on Docker Hub.
 COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscaled /app/tailscaled
@@ -40,4 +38,4 @@ RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
 # Run on container startup.
 
 ENTRYPOINT [ "/app/start.sh" ]
-CMD ["python", "-m", "calendar_index"]
+CMD ["python", "calendar_index.py"]

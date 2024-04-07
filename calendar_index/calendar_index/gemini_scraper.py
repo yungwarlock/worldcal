@@ -7,8 +7,8 @@ import logging
 import google.generativeai as genai
 from tenacity import retry, stop_after_attempt, before_log
 
-from calendar_index.event import Event
-from calendar_index.utils import extract_data
+from event import Event
+from utils import extract_data
 
 logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 

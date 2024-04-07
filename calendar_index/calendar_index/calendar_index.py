@@ -1,11 +1,12 @@
 from prefect import flow
 from prefect.artifacts import create_table_artifact
 
-from calendar_index.storage import Storage
-from calendar_index.find_dates import text_contain_dates
-from calendar_index.utils import get_page_text, split_text
-from calendar_index.anthropic_scraper import extract_all_events
+from storage import Storage
+from find_dates import text_contain_dates
+from utils import get_page_text, split_text
+from anthropic_scraper import extract_all_events
 
+default = "https://www.bbc.com/news/world-middle-east-14649284"
 
 @flow
 def get_page_events(url: str):
@@ -26,3 +27,8 @@ def get_page_events(url: str):
         table=all_data,
         description= "# Results of the page",
     )
+
+
+
+if __name__ == "__main__":
+    get_page_events.serve(name="get_page_events")
