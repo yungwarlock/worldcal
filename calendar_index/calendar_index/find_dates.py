@@ -1,6 +1,8 @@
 import re
 
+from prefect import task
 
+@task
 def text_contain_dates(text):
     matches = []
     # Define the regex pattern to match dates in the formats "MM/DD/YYYY" and "YYYY-MM-DD"

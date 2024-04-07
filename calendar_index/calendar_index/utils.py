@@ -1,15 +1,20 @@
 import re
 import json
+
+from prefect import task
+
 import trafilatura
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
+@task
 def get_page_text(url: str):
     doc = trafilatura.fetch_url(url)
     data = trafilatura.extract(doc)
     return data
 
 
+@task
 def split_text(text):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
@@ -19,7 +24,7 @@ def split_text(text):
     )
     return text_splitter.create_documents([text])
 
-
+@task
 def extract_data(data: str):
     pattern = r"```python\n(.*?)\n```"
     matches = re.findall(pattern, data, re.IGNORECASE | re.DOTALL)

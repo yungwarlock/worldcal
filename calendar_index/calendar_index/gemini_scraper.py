@@ -1,16 +1,12 @@
 import os
-import sys
-import logging
 
+from prefect import task
 import google.generativeai as genai
-from tenacity import retry, stop_after_attempt, before_log
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from event import Event
 from utils import extract_data
 
-logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
-
-logger = logging.getLogger(__name__)
 
 system_content = """
 You are helpful assistant.
@@ -28,7 +24,8 @@ If the text does not contain any notable event. Output an empty array
 """
 
 
-@retry(stop=stop_after_attempt(10), before=before_log(logger, logging.DEBUG))
+@task
+@retry(stop=stop_after_attempt(20) + wait_exponential(multiplier=1, min=5, max=80))
 def extract_all_events(text: str):
     genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
     model = genai.GenerativeModel("gemini-1.0-pro-latest")
@@ -39,7 +36,6 @@ def extract_all_events(text: str):
 
     {text}
     """
-    logging.debug("TEXT: %s", text)
 
     response = chat.send_message([system_content, text])
     data = extract_data(response.text)

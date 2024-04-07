@@ -3,7 +3,8 @@ import json
 import logging
 
 import anthropic
-from tenacity import retry, stop_after_attempt, before_log
+from prefect import task
+from tenacity import retry, stop_after_attempt, before_log, wait_exponential
 
 from event import Event
 
@@ -29,7 +30,8 @@ If the text does not contain any notable event. Output an empty array
 """
 
 
-@retry(stop=stop_after_attempt(20), before=before_log(logger, logging.DEBUG))
+@task
+@retry(stop=stop_after_attempt(20) + wait_exponential(multiplier=1, min=5, max=80), before=before_log(logger, logging.DEBUG))
 def extract_all_events(text: str):
     client = anthropic.Anthropic()
 

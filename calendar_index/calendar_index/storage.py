@@ -1,5 +1,7 @@
 import psycopg2
 
+from prefect import task
+
 from event import Event
 
 db_name = "example"
@@ -19,6 +21,7 @@ class Storage:
             port=db_port,
         )
 
+    @task
     def add_event(self, event: Event):
         cursor = self.connection.cursor()
         cursor.execute(
@@ -26,6 +29,7 @@ class Storage:
         )
         self.connection.commit()
 
+    @task
     def remove_event(self, event_id: str):
         cursor = self.connection.cursor()
         cursor.execute("DELETE FROM data_index WHERE id = %s", (event_id,))
