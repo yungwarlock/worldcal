@@ -1,7 +1,5 @@
-import re
 import os
 import sys
-import json
 import logging
 
 import google.generativeai as genai
@@ -28,6 +26,7 @@ Output in JSON. It will be a list of events. Each item should have the following
 - Summary: A 200-words summary of the event
 If the text does not contain any notable event. Output an empty array
 """
+
 
 @retry(stop=stop_after_attempt(10), before=before_log(logger, logging.DEBUG))
 def extract_all_events(text: str):

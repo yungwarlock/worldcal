@@ -2,11 +2,12 @@ import psycopg2
 
 from event import Event
 
-db_name = 'example'
-db_user = 'postgres'
-db_password = 'example'
-db_host = 'cloud-shell'
-db_port = '5432'
+db_name = "example"
+db_user = "postgres"
+db_password = "example"
+db_host = "cloud-shell"
+db_port = "5432"
+
 
 class Storage:
     def __init__(self):
@@ -15,14 +16,13 @@ class Storage:
             user=db_user,
             password=db_password,
             host=db_host,
-            port=db_port
+            port=db_port,
         )
 
     def add_event(self, event: Event):
         cursor = self.connection.cursor()
         cursor.execute(
-            "INSERT INTO data_index (data) VALUES (%s)",
-            (event.model_dump_json(),)
+            "INSERT INTO data_index (data) VALUES (%s)", (event.model_dump_json(),)
         )
         self.connection.commit()
 

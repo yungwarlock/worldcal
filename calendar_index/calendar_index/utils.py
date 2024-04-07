@@ -21,9 +21,9 @@ def split_text(text):
 
 
 def extract_data(data: str):
-    pattern = r'```python\n(.*?)\n```'
+    pattern = r"```python\n(.*?)\n```"
     matches = re.findall(pattern, data, re.IGNORECASE | re.DOTALL)
-    
+
     if not matches:
         return []
     return json.loads(matches[0])

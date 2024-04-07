@@ -6,7 +6,9 @@ from find_dates import text_contain_dates
 from utils import get_page_text, split_text
 from gemini_scraper import extract_all_events
 
+
 default = "https://www.bbc.com/news/world-middle-east-14649284"
+
 
 @flow
 def get_page_events(url: str):
@@ -25,9 +27,8 @@ def get_page_events(url: str):
     create_table_artifact(
         key="page_data",
         table=all_data,
-        description= "# Results of the page",
+        description="# Results of the page",
     )
-
 
 
 if __name__ == "__main__":
