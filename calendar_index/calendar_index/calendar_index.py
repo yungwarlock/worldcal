@@ -4,7 +4,7 @@ from prefect.artifacts import create_table_artifact
 from storage import Storage
 from find_dates import text_contain_dates
 from utils import get_page_text, split_text
-from anthropic_scraper import extract_all_events
+from gemini_scraper import extract_all_events
 
 default = "https://www.bbc.com/news/world-middle-east-14649284"
 
