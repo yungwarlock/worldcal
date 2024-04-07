@@ -13,6 +13,10 @@ COPY pyproject.toml poetry.lock ./
 
 RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --without dev --no-root
 
+COPY README.md README.md
+COPY calendar_index calendar_index
+RUN python -m pip install . --no-deps
+
 FROM python:3.10-slim-buster as runtime
 
 WORKDIR /app
