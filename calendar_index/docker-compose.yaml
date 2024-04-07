@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: example
+      POSTGRES_PASSWORD: example
+    ports:
+      - 5432:5432
+    networks:
+      - postgres
+
+  minio:
+    image: quay.io/minio/minio:latest
+    restart: always
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - ./data/minio:/data
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ACCESS_KEY: ACCESSKEY
+      MINIO_SECRET_KEY: SECRETKEY
+
+      MINIO_ROOT_USER: ROOTNAME
+      MINIO_ROOT_PASSWORD: CHANGEME123
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+       - pgadmin:/var/lib/pgadmin
+
+    ports:
+      - "${PGADMIN_PORT:-8080}:80"
+    networks:
+      - postgres
+
+  # typesense:
+  #   image: typesense/typesense:26.0
+  #   restart: on-failure
+  #   ports:
+  #     - "8108:8108"
+  #   volumes:
+  #     - ./data/typesense-data:/data
+  #   command: '--data-dir /data --api-key=xyz --enable-cors'
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+  pgadmin:
