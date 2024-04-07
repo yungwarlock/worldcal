@@ -15,7 +15,7 @@ RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --without dev --n
 
 COPY README.md README.md
 COPY calendar_index calendar_index
-RUN python -m pip install . --no-deps
+RUN /app/.venv/bin/python -m pip install . --no-deps
 
 FROM python:3.10-slim-buster as runtime
 
