@@ -1,4 +1,4 @@
-name: Deploy Next.js Application
+name: Deploy calendar-index
 
 on:
   push:
