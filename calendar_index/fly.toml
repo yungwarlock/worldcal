@@ -1,5 +1,5 @@
-app = 'calendar-index'
-primary_region = 'ams'
+app = "calendar-index"
+primary_region = "ams"
 
 [build]
   image = "registry.fly.io/calendar-index:latest"

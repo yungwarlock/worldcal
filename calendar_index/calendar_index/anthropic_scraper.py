@@ -1,6 +1,4 @@
-import sys
 import json
-import logging
 
 import anthropic
 from prefect import task
@@ -9,18 +7,11 @@ from tenacity import retry, stop_after_attempt, before_log, wait_exponential
 from event import Event
 
 
-logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
-
-logger = logging.getLogger(__name__)
-
-
 system_content = """
-You are helpful assistant.
-You will be given a piece of text and your task is to extract any
-notable events in it.
+You are a helpful assistant.
+Your task is to extract all events in it contained in the following text.
 
-Output in JSON. It will be a list of events. Each item should have the following fields:
-
+Output only in JSON. It will be a list of events. Each item should have the following fields:
 - Year: The year of the event
 - Month: The month
 - Day: The day
@@ -29,9 +20,11 @@ Output in JSON. It will be a list of events. Each item should have the following
 If the text does not contain any notable event. Output an empty array
 """
 
+def before_log():
+    print("retrying...")
 
 @task
-@retry(stop=stop_after_attempt(20) + wait_exponential(multiplier=1, min=5, max=80), before=before_log(logger, logging.DEBUG))
+@retry(stop=stop_after_attempt(20) + wait_exponential(multiplier=1, min=5, max=80), before_sleep=before_log)
 def extract_all_events(text: str):
     client = anthropic.Anthropic()
 
