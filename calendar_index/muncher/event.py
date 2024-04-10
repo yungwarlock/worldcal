@@ -5,5 +5,5 @@ class Event(BaseModel):
     year: int
     month: int
     day: int
-    remark: str
+    title: str
     summary: str
