@@ -3,6 +3,7 @@ from prefect.artifacts import create_table_artifact
 
 from extract_urls import extract_all_urls, batch_array
 
+
 @flow
 def spider(url):
     all_res = extract_all_urls(url)
@@ -21,7 +22,6 @@ links: {batch_links}
     )
     return batch_links
 
+
 if __name__ == "__main__":
-    spider.serve(
-        name="get_page_events"
-    )
+    spider.serve(name="get_page_events")

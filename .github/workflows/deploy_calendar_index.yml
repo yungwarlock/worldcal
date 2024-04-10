@@ -1,0 +1,103 @@
+name: Deploy Calendar Index
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    # Set job outputs to values from filter step
+    outputs:
+        spider: ${{ steps.filter.outputs.spider }}
+        muncher: ${{ steps.filter.outputs.muncher }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dorny/paths-filter@v3
+      id: filter
+      with:
+        filters: |
+            spider:
+            - 'calendar_index/spider/**'
+            muncher:
+            - 'calendar_index/muncher/**'
+
+  deploy_muncher:
+    name: Deploy muncher
+    runs-on: ubuntu-latest
+    concurrency: deploy-group    # optional: ensure only one action runs at a time
+
+    # run if the directory changes
+    needs: changes
+    if: ${{ needs.changes.outputs.muncher == 'true' }}
+
+    env:
+      FLY_APP: worldcal-muncher
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - uses: superfly/flyctl-actions/setup-flyctl@master
+      with:
+        version: latest
+
+    - run: flyctl auth docker
+      env:
+        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v5
+      with:
+        push: true
+        context: ./calendar_index
+        file: ./calendar_index/Dockerfile
+        build-args: |-
+            APP=muncher
+        tags: registry.fly.io/${{ env.FLY_APP }}:latest
+
+    - run: flyctl deploy
+      working-directory: ./calendar_index/muncher
+      env:
+        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+  deploy_spider:
+    name: Deploy Spider
+    runs-on: ubuntu-latest
+    concurrency: deploy-group    # optional: ensure only one action runs at a time
+
+    # run if the directory changes
+    needs: changes
+    if: ${{ needs.changes.outputs.spider == 'true' }}
+
+    env:
+      FLY_APP: worldcal-spider
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+        with:
+          version: latest
+
+      - run: flyctl auth docker
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          context: ./calendar_index
+          file: ./calendar_index/Dockerfile
+          build-args: |-
+            APP=spider
+          tags: registry.fly.io/${{ env.FLY_APP }}:latest
+
+      - run: flyctl deploy
+        working-directory: ./calendar_index/spider
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

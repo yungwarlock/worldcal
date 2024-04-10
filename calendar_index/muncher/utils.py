@@ -24,6 +24,7 @@ def split_text(text):
     )
     return text_splitter.create_documents([text])
 
+
 @task
 def extract_data(data: str):
     pattern = r"```python\n(.*?)\n```"

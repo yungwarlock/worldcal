@@ -18,16 +18,21 @@ Output in JSON. It will be a list of events. Each item should have the following
 - summary: A 200-words summary of the event
 """
 
+
 def before_log():
     print("retrying...")
 
+
 @task
-@retry(stop=stop_after_attempt(20) + wait_exponential(multiplier=1, min=5, max=80), before_sleep=before_log)
+@retry(
+    stop=stop_after_attempt(20) + wait_exponential(multiplier=1, min=5, max=80),
+    before_sleep=before_log,
+)
 def extract_all_events(prompt: str):
     genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
     model = genai.GenerativeModel("models/gemini-pro")
 
-    text = f"{system_content}/n{prompt}"""
+    text = f"{system_content}/n{prompt}" ""
 
     response = model.generate_content(text)
     data = extract_data(response.text)

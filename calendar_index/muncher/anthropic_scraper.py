@@ -2,7 +2,7 @@ import json
 
 import anthropic
 from prefect import task
-from tenacity import retry, stop_after_attempt, before_log, wait_exponential
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from event import Event
 
@@ -20,11 +20,16 @@ Output only in JSON. It will be a list of events. Each item should have the foll
 If the text does not contain any notable event. Output an empty array
 """
 
+
 def before_log():
     print("retrying...")
 
+
 @task
-@retry(stop=stop_after_attempt(20) + wait_exponential(multiplier=1, min=5, max=80), before_sleep=before_log)
+@retry(
+    stop=stop_after_attempt(20) + wait_exponential(multiplier=1, min=5, max=80),
+    before_sleep=before_log,
+)
 def extract_all_events(text: str):
     client = anthropic.Anthropic()
 

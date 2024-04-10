@@ -2,6 +2,7 @@ import re
 
 from prefect import task
 
+
 @task
 def text_contain_dates(text):
     matches = []
@@ -25,22 +26,3 @@ def text_contain_dates(text):
     matches.extend(m)
 
     return matches
-
-
-if __name__ == "__main__":
-    # Test the function with some example text
-    text = "The deadline is 12/31/2023 and today is 2024-04-01."
-    dates = text_contain_dates(text)
-    print("Dates found:", dates)
-
-    text = "The event will take place on JUNE 15, 2026 and January 8, 2009."
-    dates = text_contain_dates(text)
-    print("Dates found:", dates)
-
-    text = "The event is scheduled for JUNE 19"
-    dates = text_contain_dates(text)
-    print("Dates found:", dates)
-
-    text = "The report was published in May 2020, May, 2020 and the project started in 2020."
-    dates = text_contain_dates(text)
-    print("Dates found:", dates)
