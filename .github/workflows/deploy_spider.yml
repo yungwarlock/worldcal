@@ -1,0 +1,42 @@
+name: Deploy calendar-index
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+    homepage:
+      name: Deploy homepage
+      runs-on: ubuntu-latest
+      concurrency: deploy-group    # optional: ensure only one action runs at a time
+
+      env:
+        FLY_APP: worldcal-spider
+
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v2
+
+        - uses: superfly/flyctl-actions/setup-flyctl@master
+          with:
+            version: latest
+
+        - run: flyctl auth docker
+          env:
+            FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+        - name: Build and push
+          uses: docker/build-push-action@v5
+          with:
+            push: true
+            context: ./calendar_index
+            file: ./calendar_index/Dockerfile
+            build-args: |-
+              APP=spider
+            tags: registry.fly.io/${{ env.FLY_APP }}:latest
+
+        - run: flyctl deploy
+          working-directory: ./calendar_index/spider
+          env:
+            FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
