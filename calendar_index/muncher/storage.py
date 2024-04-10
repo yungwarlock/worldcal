@@ -14,11 +14,11 @@ db_port = "5432"
 class Storage:
     def __init__(self):
         self.connection = psycopg2.connect(
-            dbname=db_name,
             user=db_user,
-            password=db_password,
             host=db_host,
             port=db_port,
+            dbname=db_name,
+            password=db_password,
         )
 
     @task

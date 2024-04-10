@@ -12,11 +12,11 @@ You are a helpful assistant.
 Your task is to extract all events in it contained in the following text.
 
 Output only in JSON. It will be a list of events. Each item should have the following fields:
-- Year: The year of the event
-- Month: The month
-- Day: The day
-- Remark: A short remark of the event
-- Summary: A 200-words summary of the event
+- year: The year of the event
+- month: The month
+- day: The day
+- remark: A short remark of the event
+- summary: A 200-words summary of the event
 If the text does not contain any notable event. Output an empty array
 """
 
