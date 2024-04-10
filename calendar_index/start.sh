@@ -19,13 +19,22 @@ else
   export ALL_PROXY=socks5://localhost:1055
 fi
 
-$SHELL "$@"
-
-if [ -n "$FLY_APP_NAME" ]; then
-  # Turn off swap
-  swapoff /swapfile
-  rm /swapfile
-
+cleanup() {
+  kill ${!}
+  echo "Cleaning up"
+  
   # Turn off tailscale
   /app/tailscale logout
-fi
+
+  if [ -n "$FLY_APP_NAME" ]; then
+    # Turn off swap
+    swapoff /swapfile
+    rm /swapfile
+
+  fi
+}
+
+trap cleanup INT
+trap cleanup TERM
+
+$SHELL "$@" & wait ${!}
