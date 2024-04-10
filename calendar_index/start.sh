@@ -25,4 +25,7 @@ if [ -n "$FLY_APP_NAME" ]; then
   # Turn off swap
   swapoff /swapfile
   rm /swapfile
+
+  # Turn off tailscale
+  /app/tailscale logout
 fi
