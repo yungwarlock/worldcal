@@ -20,9 +20,17 @@ jobs:
       with:
         filters: |
             spider:
-            - 'calendar_index/spider/**'
+              - 'calendar_index/start.sh'
+              - 'calendar_index/spider/**'
+              - 'calendar_index/Dockerfile'
+              - 'calendar_index/poetry.lock'
+              - 'calendar_index/pyproject.toml'
             muncher:
-            - 'calendar_index/muncher/**'
+              - 'calendar_index/start.sh'
+              - 'calendar_index/muncher/**'
+              - 'calendar_index/Dockerfile'
+              - 'calendar_index/poetry.lock'
+              - 'calendar_index/pyproject.toml'
 
   deploy_muncher:
     name: Deploy muncher

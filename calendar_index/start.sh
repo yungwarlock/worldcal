@@ -10,7 +10,7 @@ if [ -n "$FLY_APP_NAME" ]; then
   swapon /swapfile
 
   /app/tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock &>/dev/null &
-  /app/tailscale up --authkey=${TAILSCALE_AUTHKEY} --hostname=fly-app
+  /app/tailscale up --authkey=${TAILSCALE_AUTHKEY} --hostname=${FLY_APP_NAME}
 else
   echo "Not running in fly.io"
   /app/tailscaled --tun=userspace-networking --socks5-server=localhost:1055 &>/dev/null &
