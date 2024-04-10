@@ -15,6 +15,8 @@ RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --without dev --n
 
 FROM python:3.10-slim-buster as runtime
 
+ARG APP
+
 WORKDIR /app
 
 RUN apt-get update \
@@ -25,10 +27,10 @@ ENV VIRTUAL_ENV=/app/.venv \
     PATH="/app/.venv/bin:$PATH"
 
 COPY start.sh start.sh
-COPY calendar_index calendar_index
+COPY ${APP} ${APP}
 COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
-WORKDIR /app/calendar_index
+WORKDIR /app/${APP}
 
 # Copy Tailscale binaries from the tailscale image on Docker Hub.
 COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscaled /app/tailscaled
@@ -38,4 +40,4 @@ RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
 # Run on container startup.
 
 ENTRYPOINT [ "/app/start.sh" ]
-CMD ["python", "calendar_index.py"]
+CMD ["python", "${APP}.py"]
