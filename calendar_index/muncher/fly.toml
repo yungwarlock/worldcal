@@ -1,0 +1,18 @@
+app = "worldcal-muncher"
+primary_region = "ams"
+
+# [http_service]
+#   internal_port = 8080
+#   force_https = true
+#   auto_stop_machines = true
+#   auto_start_machines = true
+#   min_machines_running = 0
+#   processes = ["app"]
+
+[build]
+  image = "registry.fly.io/worldcal-muncher:latest"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
