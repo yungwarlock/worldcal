@@ -1,4 +1,4 @@
-name: Deploy calendar-index
+name: Deploy Spider Job
 
 on:
   push:
