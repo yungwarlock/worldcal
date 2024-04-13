@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres
+    hostname: db
     restart: always
     shm_size: 128mb
     volumes:
@@ -31,6 +32,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
+    hostname: pgadmin
     user: root
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
@@ -42,6 +44,8 @@ services:
       - "${PGADMIN_PORT:-8080}:80"
     networks:
       - postgres
+    depends_on:
+      - db
 
   neo4j:
     image: neo4j
@@ -67,6 +71,3 @@ services:
 networks:
   postgres:
     driver: bridge
-
-volumes:
-  pgadmin:
