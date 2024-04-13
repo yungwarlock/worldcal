@@ -31,17 +31,29 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
+    user: root
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     volumes:
-       - pgadmin:/var/lib/pgadmin
-
+       - ./data/pgadmin:/var/lib/pgadmin
     ports:
       - "${PGADMIN_PORT:-8080}:80"
     networks:
       - postgres
+
+  neo4j:
+    image: neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - ./data/neo4j:/data
+    environment:
+      - NEO4J_AUTH=neo4j/mypassword
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider localhost:7474 || exit 1"]
 
   # typesense:
   #   image: typesense/typesense:26.0
