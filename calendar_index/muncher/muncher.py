@@ -7,9 +7,6 @@ from utils import get_page_text, split_text
 from gemini_scraper import extract_all_events
 
 
-default = "https://www.bbc.com/news/world-middle-east-14649284"
-
-
 @flow
 def get_page_events(url: str):
     storage = Storage()
@@ -25,9 +22,9 @@ def get_page_events(url: str):
         all_data.append(data)
 
     create_table_artifact(
-        key="page_data",
+        key=url,
         table=all_data,
-        description="# Results of the page",
+        description=f"""Events found on the page {url}:""",
     )
 
 

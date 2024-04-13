@@ -27,7 +27,7 @@ def split_text(text):
 
 @task
 def extract_data(data: str):
-    pattern = r"```python\n(.*?)\n```"
+    pattern = r"```json\n(.*?)\n```"
     matches = re.findall(pattern, data, re.IGNORECASE | re.DOTALL)
 
     if not matches:

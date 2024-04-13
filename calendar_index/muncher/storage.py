@@ -42,13 +42,16 @@ INSERT INTO {self.table}
 (title, summary, day, month, year)
 VALUES (?, ?, ?, ?, ?)
         """
-        cursor.execute(query, (
-            event.title,
-            event.summary,
-            event.day,
-            event.month,
-            event.year,
-        ))
+        cursor.execute(
+            query,
+            (
+                event.title,
+                event.summary,
+                event.day,
+                event.month,
+                event.year,
+            ),
+        )
         self.connection.commit()
 
     @task

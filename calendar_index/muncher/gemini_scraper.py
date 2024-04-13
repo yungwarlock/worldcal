@@ -14,7 +14,7 @@ Output in JSON. It will be a list of events. Each item should have the following
 - year: The year of the event
 - month: The month
 - day: The day
-- remark: A short remark of the event
+- title: A short remark of the event
 - summary: A 200-words summary of the event
 """
 
@@ -32,9 +32,18 @@ def extract_all_events(prompt: str):
     genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
     model = genai.GenerativeModel("models/gemini-pro")
 
-    text = f"{system_content}/n{prompt}" ""
+    text = f"{system_content}/n{prompt}"
 
     response = model.generate_content(text)
     data = extract_data(response.text)
 
-    return Event(**data)
+    event = Event(
+        context={},
+        day=data["day"],
+        year=data["year"],
+        month=data["month"],
+        title=data["remark"],
+        summary=data["summary"],
+    )
+
+    return event
