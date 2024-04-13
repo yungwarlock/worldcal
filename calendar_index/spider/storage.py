@@ -34,7 +34,6 @@ class Storage:
             password=DB_PASSWORD,
         )
 
-    @task
     def add_url(self, event: URL):
         cursor = self.connection.cursor()
 
@@ -57,7 +56,6 @@ class Storage:
         self.connection.commit()
         cursor.close()
 
-    @task
     def save_urls(self, urls: np.array):
         batch_size = 10
         batches = np.array_split(urls, len(urls) // batch_size)

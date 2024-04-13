@@ -12,7 +12,7 @@ from utils import check_is_banned_url
 
 @task
 def extract_all_urls(url, max_depth=2):
-    all_store = np.array()
+    all_store = np.array([])
 
     def process_url(url: str):
         res = set()
@@ -22,25 +22,28 @@ def extract_all_urls(url, max_depth=2):
         for link in soup.find_all("a"):
             if not link.get("href", None):
                 continue
-            is_not_in_store = link["href"] not in all_store and link["href"] not in res
+            is_not_in_store = True
+            for x in all_store:
+                if x["url"] == link["href"]:
+                    is_not_in_store = False
+                    break
             is_valid_url = re.fullmatch(
                 r"\bhttps?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*", link["href"]
             )
             # has_base_path = link["href"].find(url) == 0
-            is_not_banned_url = check_is_banned_url(link["href"])
+            is_not_banned_url = check_is_banned_url(link["href"]) is False
             if is_not_in_store and is_valid_url and is_not_banned_url:
                 res.add(link["href"])
 
         data = []
         for link in res:
-            link_hash = hash(link)
-            data[link_hash] = {
+            data.append({
                 "url": link,
                 "title": "",
-                "hash": link_hash,
+                "hash": abs(hash(link)),
                 "date_added": datetime.now(),
-                "previous_node_hash": hash(url),
-            }
+                "previous_node_hash": abs(hash(url)),
+            })
         return data
 
     prev = set([url])
@@ -48,11 +51,11 @@ def extract_all_urls(url, max_depth=2):
         with ThreadPool() as pool:
             results = pool.map(process_url, prev)
             all_store = np.concatenate((all_store, *results), axis=None)
-            prev = np.concatenate(([], *results), axis=None)
-            prev = np.array([x["url"] for x in prev])
+            prev_x = np.concatenate(([], *results), axis=None)
+            prev = np.array([x["url"] for x in prev_x])
         max_depth -= 1
 
-    return all_store
+    return [x for x in all_store]
 
 
 @task
