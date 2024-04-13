@@ -1,5 +1,4 @@
 import re
-import json
 
 from prefect import task
 
@@ -30,6 +29,4 @@ def extract_data(data: str):
     pattern = r"```json\n(.*?)\n```"
     matches = re.findall(pattern, data, re.IGNORECASE | re.DOTALL)
 
-    if not matches:
-        return []
-    return json.loads(matches[0])
+    return matches

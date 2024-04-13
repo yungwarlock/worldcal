@@ -1,7 +1,7 @@
 import os
+from typing import List
 
 import psycopg2
-from prefect import task
 
 from event import Event
 
@@ -15,6 +15,7 @@ DB_PASSWORD = os.environ.get("DB_PASSWORD", "")
 
 class Storage:
     table = "calendar_index"
+    spider_table = "spider_index"
 
     def __init__(self, username: str, password: str, host: str, db_name: str):
         self.connection = psycopg2.connect(
@@ -33,20 +34,29 @@ class Storage:
             password=DB_PASSWORD,
         )
 
-    @task
+    def get_urls_from_range(self, start: int, end: int):
+        cursor = self.connection.cursor()
+
+        query = """
+        SELECT url FROM spider_index
+        LIMIT 300
+        """
+        cursor.execute(query, (start, end))
+        return [x[0] for x in cursor.fetchall()]
+
     def add_event(self, event: Event):
         cursor = self.connection.cursor()
 
-        query = f"""
-INSERT INTO {self.table}
-(title, summary, day, month, year)
-VALUES (?, ?, ?, ?, ?)
+        query = """
+INSERT INTO calendar_index (title, summary, context, day, month, year)
+VALUES (?, ?, ?, ?, ?, ?)
         """
         cursor.execute(
             query,
             (
                 event.title,
                 event.summary,
+                str(event.context),
                 event.day,
                 event.month,
                 event.year,
@@ -54,7 +64,30 @@ VALUES (?, ?, ?, ?, ?)
         )
         self.connection.commit()
 
-    @task
+    def add_bulk_event(self, events: List[Event]):
+        cursor = self.connection.cursor()
+
+        query = f"""
+INSERT INTO {self.table}
+(title, summary, context, day, month, year)
+VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        cursor.executemany(
+            query,
+            [
+                (
+                    event.title,
+                    event.summary,
+                    str(event.context),
+                    event.day,
+                    event.month,
+                    event.year,
+                )
+                for event in events
+            ],
+        )
+        self.connection.commit()
+
     def remove_event(self, event_id: str):
         cursor = self.connection.cursor()
 

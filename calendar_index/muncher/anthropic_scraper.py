@@ -2,9 +2,10 @@ import json
 
 import anthropic
 from prefect import task
-from tenacity import retry, stop_after_attempt, wait_exponential
+from tenacity import retry, wait_fixed, stop_after_attempt, wait_exponential
 
 from event import Event
+from utils import extract_data
 
 
 system_content = """
@@ -12,9 +13,9 @@ You are a helpful assistant.
 Your task is to extract all events in it contained in the following text.
 
 Output only in JSON. It will be a list of events. Each item should have the following fields:
-- year: The year of the event
-- month: The month
-- day: The day
+- year: The year of the event. If not specified, it should be 0
+- month: The month. If not specified, it should be 0
+- day: The day. If not specified, it should be 0
 - title: A short remark of the event
 - summary: A 200-words summary of the event
 If the text does not contain any notable event. Output an empty array
@@ -28,7 +29,8 @@ def before_log():
 @task
 @retry(
     before_sleep=before_log,
-    stop=stop_after_attempt(20) + wait_exponential(multiplier=1, min=5, max=80),
+    wait=wait_fixed(120),  # wait 2 minutes between retries
+    # stop=stop_after_attempt(20) + wait_exponential(multiplier=1, min=5, max=80),
 )
 def extract_all_events(text: str):
     client = anthropic.Anthropic()
@@ -55,15 +57,24 @@ def extract_all_events(text: str):
         ],
     )
 
-    data = json.loads(message.content[0].text)
+    print(message.content[0].text)
 
-    event = Event(
-        context={},
-        day=data["day"],
-        year=data["year"],
-        month=data["month"],
-        title=data["remark"],
-        summary=data["summary"],
-    )
+    if not extract_data(message.content[0].text) == []:
+        res = extract_data(message.content[0].text)
+        res = json.loads(res[0])
+    else:
+        res = json.loads(message.content[0].text)
 
-    return event
+    events = [
+        Event(
+            context={},
+            title=item.get("title", ""),
+            day=int(item.get("day", "0")),
+            year=int(item.get("year", "0")),
+            summary=item.get("summary", ""),
+            month=int(item.get("month", "0")),
+        )
+        for item in res
+    ]
+
+    return events
