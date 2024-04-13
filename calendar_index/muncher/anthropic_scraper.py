@@ -14,7 +14,7 @@ Your task is to extract all events in it contained in the following text.
 
 Output only in JSON. It will be a list of events. Each item should have the following fields:
 - year: The year of the event. If not specified, it should be 0
-- month: The month. If not specified, it should be 0
+- month: The month in numeric format between 0 and 11. If not specified, it should be 0
 - day: The day. If not specified, it should be 0
 - title: A short remark of the event
 - summary: A 200-words summary of the event

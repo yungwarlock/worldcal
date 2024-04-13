@@ -37,4 +37,5 @@ def get_page_events():
 
 
 if __name__ == "__main__":
-    get_page_events.serve(name="get_page_events")
+    # get_page_events.serve(name="get_page_events")
+    get_page_events()
