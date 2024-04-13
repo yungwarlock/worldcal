@@ -1,27 +1,30 @@
 from prefect import flow
 from prefect.artifacts import create_table_artifact
 
-from extract_urls import extract_all_urls, batch_array
+from storage import Storage
+from extract_urls import extract_all_urls
 
 
 @flow
 def spider(url):
+    storage = Storage.from_environment_variables()
+
     all_res = extract_all_urls(url)
-    batch_links = batch_array(list(all_res), batch_size=10)
+
+    storage.save_urls(all_res)
 
     create_table_artifact(
         key="all links",
-        table=batch_links,
+        table=all_res,
         description=f"""
 All links from the page
 
 Page: {url}
 links count: {len(all_res)}
-links: {batch_links}
 """,
     )
-    return batch_links
+    return all_res
 
 
 if __name__ == "__main__":
-    spider.serve(name="get_page_events")
+    spider.serve(name="extract_all_urls")
