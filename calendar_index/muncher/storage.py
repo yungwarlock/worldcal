@@ -39,7 +39,7 @@ class Storage:
 
         query = """
         SELECT url FROM spider_index
-        LIMIT 300
+        WHERE id BETWEEN %s AND %s
         """
         cursor.execute(query, (start, end))
         return [x[0] for x in cursor.fetchall()]
@@ -49,7 +49,7 @@ class Storage:
 
         query = """
 INSERT INTO calendar_index (title, summary, context, day, month, year)
-VALUES (?, ?, ?, ?, ?, ?)
+VALUES (%s %s %s %s %s %s)
         """
         cursor.execute(
             query,

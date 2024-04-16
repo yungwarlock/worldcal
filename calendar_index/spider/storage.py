@@ -38,8 +38,8 @@ class Storage:
         cursor = self.connection.cursor()
 
         query = f"""
-        INSERT INTO {self.table} (hash, url, title, previous_node_hash, date_added)
-        VALUES (%s, %s, %s, %s, %s);
+        INSERT INTO {self.table} (hash, url, title, previous_node_hash)
+        VALUES (%s, %s, %s, %s);
         """
 
         cursor.execute(
@@ -49,7 +49,6 @@ class Storage:
                 event.url,
                 event.title,
                 event.previous_node_hash,
-                event.date_added,
             ),
         )
 
@@ -64,8 +63,8 @@ class Storage:
             cursor = self.connection.cursor()
 
             query = f"""
-            INSERT INTO {self.table} (hash, url, title, previous_node_hash, date_added)
-            VALUES (%s, %s, %s, %s, %s);
+            INSERT INTO {self.table} (hash, url, title, previous_node_hash)
+            VALUES (%s, %s, %s, %s);
             """
 
             cursor.executemany(
@@ -76,7 +75,6 @@ class Storage:
                         event["url"],
                         event["title"],
                         event["previous_node_hash"],
-                        event["date_added"],
                     )
                     for event in batch
                 ],
