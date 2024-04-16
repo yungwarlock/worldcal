@@ -9,7 +9,7 @@ CREATE TABLE spider_index  (
   previous_node_hash TEXT NOT NULL DEFAULT 'origin'
 );
 
-CREATE spider_job_queue (
+CREATE TABLE spider_job_queue (
   id SERIAL PRIMARY KEY,
   spider_index_id INT NOT NULL,
   date_added TIMESTAMP NOT NULL DEFAULT NOW(),
