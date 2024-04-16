@@ -13,6 +13,7 @@ jobs:
     outputs:
         spider: ${{ steps.filter.outputs.spider }}
         muncher: ${{ steps.filter.outputs.muncher }}
+        critiquer: ${{ steps.filter.outputs.critiquer }}
     steps:
     - uses: actions/checkout@v4
     - uses: dorny/paths-filter@v3
@@ -31,7 +32,14 @@ jobs:
               - 'calendar_index/Dockerfile'
               - 'calendar_index/poetry.lock'
               - 'calendar_index/pyproject.toml'
-
+            critiquer:
+              - 'calendar_index/start.sh'
+              - 'calendar_index/critiquer/**'
+              - 'calendar_index/Dockerfile'
+              - 'calendar_index/poetry.lock'
+              - 'calendar_index/pyproject.toml'
+  
+              
   deploy_muncher:
     name: Deploy muncher
     runs-on: ubuntu-latest
@@ -107,5 +115,44 @@ jobs:
 
       - run: flyctl deploy
         working-directory: ./calendar_index/spider
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+  deploy_critiquer:
+    name: Deploy Critiquer
+    runs-on: ubuntu-latest
+    concurrency: deploy-group    # optional: ensure only one action runs at a time
+
+    # run if the directory changes
+    needs: changes
+    if: ${{ needs.changes.outputs.critiquer == 'true' }}
+
+    env:
+      FLY_APP: worldcal-critiquer
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+        with:
+          version: latest
+
+      - run: flyctl auth docker
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          context: ./calendar_index
+          file: ./calendar_index/Dockerfile
+          build-args: |-
+            APP=critiquer
+          tags: registry.fly.io/${{ env.FLY_APP }}:latest
+
+      - run: flyctl deploy
+        working-directory: ./calendar_index/critiquer
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
