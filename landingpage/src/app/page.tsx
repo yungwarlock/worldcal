@@ -10,7 +10,6 @@ import WrenchScrewDriver from "@heroicons/react/24/solid/WrenchScrewdriverIcon";
 
 
 export default function Home() {
-
   const handleType = (count: number) => {
     // access word count number
     console.log(count)
@@ -19,7 +18,6 @@ export default function Home() {
   const handleDone = () => {
     console.log(`Done after 5 loops!`)
   }
-
 
   return (
     <div className="flex flex-col h-screen w-screen bg-white dark:bg-primary">
