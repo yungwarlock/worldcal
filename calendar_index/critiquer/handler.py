@@ -27,7 +27,7 @@ class Query(BaseModel):
 
 
 class Critiquer:
-    max_tokens = 600
+    max_tokens = 1000
     temperature = 0.1
     model = "claude-3-sonnet-20240229"
     stop_sequences = ["</search>", "</browser>", "</response>"]
@@ -56,61 +56,65 @@ class Critiquer:
             },
         )
 
-        res = self.client.messages.create(
-            model=self.model,
-            messages=self._messages,
-            max_tokens=self.max_tokens,
-            system=self.system_message,
-            temperature=self.temperature,
-        )
+        while True:
+            res = self.client.messages.create(
+                model=self.model,
+                messages=self._messages,
+                max_tokens=self.max_tokens,
+                system=self.system_message,
+                temperature=self.temperature,
+                stop_sequences=self.stop_sequences,
+            )
 
-        self._messages.append(
-            {
-                "role": "assistant",
-                "content": res.content,
-            },
-        )
+            self._messages.append(
+                {
+                    "role": "assistant",
+                    "content": res.content,
+                },
+            )
 
-        if res.stop_reason == "stop_sequence" and any(
-            seq in res.stop_sequence for seq in self.stop_sequences
-        ):
-            stop_sequence = res.stop_sequence
-            text = res.content[0].text + stop_sequence
+            if res.stop_reason == "stop_sequence" and any(
+                seq in res.stop_sequence for seq in self.stop_sequences
+            ):
+                stop_sequence = res.stop_sequence
+                text = res.content[0].text + stop_sequence
 
-            if "</search>" in stop_sequence:
-                query = re.search(r"<search>(.*?)</search>", text).group(1)
-                self._messages.append(
-                    {
-                        "role": "assistant",
-                        "content": self.handle_search(query),
-                    },
-                )
-            elif "</browser>" in stop_sequence:
-                url = re.search(r"<browser>(.*?)</browser>", text).group(1)
-                self._messages.append(
-                    {
-                        "role": "assistant",
-                        "content": self.handle_browser(url),
-                    },
-                )
-            elif "</response>" in stop_sequence:
-                text = re.search(r"<response>(.*?)</response>", text).group(1)
-                json_match = re.search(r"\{(?:[^{}]|)*\}", text).group()
-                json_data = json.loads(json_match)
-                return json_data
-        else:
-            return None
-            raise ValueError(f"Unexpected stop reason: {res.stop_reason}")
+                # print("stop_sequence:", stop_sequence)
+                # print("stop_sequence_found:", text)
+
+                if "</search>" in stop_sequence:
+                    query = re.search(r"<search>(.*?)</search>", text).group(1)
+                    self._messages.append(
+                        {
+                            "role": "user",
+                            "content": self.handle_search(query),
+                        },
+                    )
+                elif "</browser>" in stop_sequence:
+                    url = re.search(r"<browser>(.*?)</browser>", text).group(1)
+                    self._messages.append(
+                        {
+                            "role": "user",
+                            "content": self.handle_browser(url),
+                        },
+                    )
+                elif "</response>" in stop_sequence:
+                    text = re.search(r"<response>(.*?)</response>", text, re.S).group(1)
+                    json_match = re.search(r"\{(?:[^{}]|)*\}", text, re.S).group()
+                    json_data = json.loads(json_match)
+                    return json_data
+            else:
+                raise ValueError(f"Unexpected stop reason: {res.stop_reason}. {res.content[0].text}")
 
     def handle_search(self, query: str):
         res = Query(**self._tavily.search(query))
-        return [
+        return json.dumps([
             {
                 "title": result.title,
                 "url": result.url,
             }
             for result in res.results
-        ]
+        ])
 
     def handle_browser(self, url: str):
         doc = trafilatura.fetch_url(url)
