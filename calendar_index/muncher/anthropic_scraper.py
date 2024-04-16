@@ -2,7 +2,7 @@ import json
 
 import anthropic
 from prefect import task
-from tenacity import retry, wait_fixed, stop_after_attempt, wait_exponential
+from tenacity import retry, wait_fixed
 
 from event import Event
 from utils import extract_data
