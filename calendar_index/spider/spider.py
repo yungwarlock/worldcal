@@ -1,6 +1,8 @@
+import tempfile
+
 from prefect import flow
 
-from storage import Storage
+from storage import JSONLManager, Storage
 from extract_urls import extract_all_urls
 
 
@@ -8,22 +10,12 @@ from extract_urls import extract_all_urls
 def spider(url):
     storage = Storage.from_environment_variables()
 
-    all_res = extract_all_urls(url)
-
-    storage.save_urls(all_res)
-
-#     create_table_artifact(
-#         key="all-links",
-#         table=all_res,
-#         description=f"""
-# All links from the page
-
-# Page: {url}
-# links count: {len(all_res)}
-# """,
-#     )
-    return all_res
-
+    temp_fd = tempfile.NamedTemporaryFile(dir="/tmp", delete=False, mode="w+")
+    # print("tempfile_name:", temp_fd.name)
+    json_manager = JSONLManager(temp_fd)
+    extract_all_urls(url, json_manager)
+    json_manager.respool()
+    storage.save_urls(json_manager)
 
 if __name__ == "__main__":
-    spider.serve(name="extract_all_urls")
+    spider("https://arise.tv")
