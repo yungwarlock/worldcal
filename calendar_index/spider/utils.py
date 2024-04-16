@@ -1,19 +1,22 @@
+import re
+
+
 banned_urls = [
-    "https://www.google.com",
-    "https://www.facebook.com",
-    "https://www.twitter.com",
-    "https://www.instagram.com",
-    "https://www.youtube.com",
-    "https://www.linkedin.com",
-    "https://www.pinterest.com",
-    "https://www.reddit.com",
+    "google.com",
+    "facebook.com",
+    "twitter.com",
+    "instagram.com",
+    "youtube.com",
+    "linkedin.com",
+    "pinterest.com",
+    "reddit.com",
+    "whatsapp.com",
 ]
 
 
 def check_is_banned_url(url: str):
-    for banned_url in banned_urls:
-        if url.find(banned_url) == 0:
-            return True
+    if any(re.search(banned_url, url) for banned_url in banned_urls):
+        return True
     return False
 
 
