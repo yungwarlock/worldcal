@@ -14,10 +14,12 @@ CREATE TABLE calendar_index (
   id SERIAL PRIMARY KEY,
   title TEXT NOT NULL,
   summary TEXT NOT NULL,
+  url_id INT NOT NULL,
   context JSONB NOT NULL, -- JSON
   day INT NOT NULL,
   month INT NOT NULL,
   year INT NOT NULL,
   status job_status NOT NULL DEFAULT 'not_scheduled',
-  date_added TIMESTAMP NOT NULL DEFAULT NOW()
+  date_added TIMESTAMP NOT NULL DEFAULT NOW(),
+  FOREIGN KEY (url_id) REFERENCES spider_index(id)
 );
