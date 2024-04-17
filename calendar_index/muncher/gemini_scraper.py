@@ -26,7 +26,7 @@ def before_log():
 
 @task
 @retry(
-    before_sleep=before_log,
+    before_sleep=before_log,  # type: ignore
     wait=wait_fixed(120),  # wait 2 minutes between retries
     # stop=stop_after_attempt(20) + wait_exponential(multiplier=1, min=5, max=80),
 )

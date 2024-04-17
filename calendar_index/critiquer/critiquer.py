@@ -2,6 +2,7 @@ from prefect import flow
 
 from handler import Critiquer
 
+
 @flow
 def critique_event(event: str):
     critiquer = Critiquer.from_env()
@@ -9,8 +10,9 @@ def critique_event(event: str):
     res = critiquer.critique(event)
     return res
 
+
 if __name__ == "__main__":
-    critique_event.serve(name="critique_event")
+    critique_event.serve(name="critique_event")  # type: ignore
 #     res = critique_event(
 #         """
 # cameron vs nigeria 2 - 0

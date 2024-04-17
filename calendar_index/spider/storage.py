@@ -1,7 +1,7 @@
 import os
 import json
 from io import TextIOWrapper
-from typing import Hashable
+from typing import Hashable, Dict, List
 
 import psycopg2
 from prefect import task
@@ -42,7 +42,7 @@ class JSONLManager:
     def respool(self):
         self._fd.seek(0)
 
-    def write_many(self, data: dict):
+    def write_many(self, data: List[Dict[str, str]]):
         self._fd.writelines(json.dumps(item) + "\n" for item in data)
         self.num_lines += len(data)
 
@@ -143,7 +143,10 @@ class Storage:
         """
 
         cursor.execute(query, (url,))
-        result = cursor.fetchone()[0]
+        result = cursor.fetchone()
+        if not result:
+            return False
+        result = result[0]
         cursor.close()
 
         return result

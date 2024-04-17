@@ -4,6 +4,7 @@ from prefect import flow
 from storage import Storage
 from find_dates import text_contain_dates
 from utils import get_page_text, split_text
+
 # from anthropic_scraper import extract_all_events
 from gemini_scraper import extract_all_events
 
@@ -37,5 +38,5 @@ def get_page_events():
 
 
 if __name__ == "__main__":
-    get_page_events.serve(name="get_page_events")
+    get_page_events.serve(name="get_page_events")  # type: ignore
     # get_page_events()

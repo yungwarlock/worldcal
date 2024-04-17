@@ -74,16 +74,19 @@ class Critiquer:
             )
 
             if res.stop_reason == "stop_sequence" and any(
-                seq in res.stop_sequence for seq in self.stop_sequences
+                seq in str(res.stop_sequence) for seq in self.stop_sequences
             ):
-                stop_sequence = res.stop_sequence
+                stop_sequence = str(res.stop_sequence)
                 text = res.content[0].text + stop_sequence
 
                 # print("stop_sequence:", stop_sequence)
                 # print("stop_sequence_found:", text)
 
                 if "</search>" in stop_sequence:
-                    query = re.search(r"<search>(.*?)</search>", text).group(1)
+                    query = re.search(r"<search>(.*?)</search>", text)
+                    if not query:
+                        raise ValueError("No query found")
+                    query = query.group(1)
                     self._messages.append(
                         {
                             "role": "user",
@@ -91,7 +94,10 @@ class Critiquer:
                         },
                     )
                 elif "</browser>" in stop_sequence:
-                    url = re.search(r"<browser>(.*?)</browser>", text).group(1)
+                    url = re.search(r"<browser>(.*?)</browser>", text)
+                    if not url:
+                        raise ValueError("No url found")
+                    url = url.group(1)
                     self._messages.append(
                         {
                             "role": "user",
@@ -99,22 +105,32 @@ class Critiquer:
                         },
                     )
                 elif "</response>" in stop_sequence:
-                    text = re.search(r"<response>(.*?)</response>", text, re.S).group(1)
-                    json_match = re.search(r"\{(?:[^{}]|)*\}", text, re.S).group()
+                    text = re.search(r"<response>(.*?)</response>", text, re.S)
+                    if not text:
+                        raise ValueError("No response found")
+                    text = text.group(1)
+                    json_match = re.search(r"\{(?:[^{}]|)*\}", text, re.S)
+                    if not json_match:
+                        raise ValueError("No JSON found")
+                    json_match = json_match.group(1)
                     json_data = json.loads(json_match)
                     return json_data
             else:
-                raise ValueError(f"Unexpected stop reason: {res.stop_reason}. {res.content[0].text}")
+                raise ValueError(
+                    f"Unexpected stop reason: {res.stop_reason}. {res.content[0].text}"
+                )
 
     def handle_search(self, query: str):
-        res = Query(**self._tavily.search(query))
-        return json.dumps([
-            {
-                "title": result.title,
-                "url": result.url,
-            }
-            for result in res.results
-        ])
+        res = Query(**self._tavily.search(query))  # type: ignore
+        return json.dumps(
+            [
+                {
+                    "title": result.title,
+                    "url": result.url,
+                }
+                for result in res.results
+            ]
+        )
 
     def handle_browser(self, url: str):
         doc = trafilatura.fetch_url(url)

@@ -34,12 +34,14 @@ def extract_all_urls(url, json_writer: JSONLManager, max_depth=2):
 
         data = []
         for link in res:
-            data.append({
-                "url": link,
-                "title": "",
-                "hash": abs(hash(link)),
-                "previous_node_hash": abs(hash(url)),
-            })
+            data.append(
+                {
+                    "url": link,
+                    "title": "",
+                    "hash": abs(hash(link)),
+                    "previous_node_hash": abs(hash(url)),
+                }
+            )
         return data
 
     prev = set([url])
@@ -49,9 +51,8 @@ def extract_all_urls(url, json_writer: JSONLManager, max_depth=2):
             all_store = np.concatenate(([], *results), axis=None)
             prev_x = np.concatenate(([], *results), axis=None)
             prev = np.array([x["url"] for x in prev_x])
-            json_writer.write_many(all_store)
+            json_writer.write_many(list(all_store))
         max_depth -= 1
-
 
 
 @task
