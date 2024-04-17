@@ -1,4 +1,4 @@
-CREATE TYPE job_status AS ENUM ('not_scheduled', 'scheduled', 'completed');
+CREATE TYPE job_status AS ENUM ('not_scheduled', 'scheduled', 'completed', 'failed');
 
 CREATE TABLE spider_index  (
   id SERIAL PRIMARY KEY,
@@ -6,14 +6,8 @@ CREATE TABLE spider_index  (
   title TEXT NOT NULL,
   url TEXT NOT NULL,
   date_added TIMESTAMP NOT NULL DEFAULT NOW(),
+  status job_status NOT NULL DEFAULT 'not_scheduled',
   previous_node_hash TEXT NOT NULL DEFAULT 'origin'
-);
-
-CREATE TABLE spider_job_queue (
-  id SERIAL PRIMARY KEY,
-  spider_index_id INT NOT NULL,
-  date_added TIMESTAMP NOT NULL DEFAULT NOW(),
-  status job_status NOT NULL DEFAULT 'not_scheduled'
 );
 
 CREATE TABLE calendar_index (
@@ -24,12 +18,13 @@ CREATE TABLE calendar_index (
   day INT NOT NULL,
   month INT NOT NULL,
   year INT NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+  status job_status NOT NULL DEFAULT 'not_scheduled',
+  date_added TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE calendar_job_queue (
+CREATE TABLE munching_jobs (
   id SERIAL PRIMARY KEY,
-  spider_index_id INT NOT NULL,
-  date_added TIMESTAMP NOT NULL DEFAULT NOW(),
-  status job_status NOT NULL DEFAULT 'not_scheduled'
+  items JSONB NOT NULL, -- JSON
+  status job_status NOT NULL DEFAULT 'not_scheduled',
+  date_added TIMESTAMP NOT NULL DEFAULT NOW()
 );
