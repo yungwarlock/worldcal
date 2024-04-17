@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, TypedDict
 
 import psycopg2
 
@@ -11,6 +11,11 @@ DB_USER = os.environ.get("DB_USER", "")
 DB_HOST = os.environ.get("DB_HOST", "")
 DB_PORT = os.environ.get("DB_PORT", "")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "")
+
+
+class URLItem(TypedDict):
+    id: int
+    url: str
 
 
 class Storage:
@@ -34,22 +39,40 @@ class Storage:
             password=DB_PASSWORD,
         )
 
-    def get_urls_from_range(self, start: int, end: int):
+    def get_unscheduled_urls(self, limit=20) -> List[URLItem]:
         cursor = self.connection.cursor()
 
-        query = """
-        SELECT url FROM spider_index
-        WHERE id BETWEEN %s AND %s
+        query = f"""
+SELECT id, url FROM {self.spider_table}
+WHERE status = 'not_scheduled'
+LIMIT %s
         """
-        cursor.execute(query, (start, end))
-        return [x[0] for x in cursor.fetchall()]
+        cursor.execute(query, (limit,))
+        return [
+            {
+                "id": x[0],
+                "url": x[1],
+            }
+            for x in cursor.fetchall()
+        ]
+
+    def batch_set_url_completed(self, url: List[int]):
+        cursor = self.connection.cursor()
+
+        query = f"""
+UPDATE {self.spider_table}
+SET status = 'completed'
+WHERE url = %s
+        """
+        cursor.executemany(query, [(x,) for x in url])
+        self.connection.commit()
 
     def add_event(self, event: Event):
         cursor = self.connection.cursor()
 
-        query = """
-INSERT INTO calendar_index (title, summary, context, day, month, year)
-VALUES (%s %s %s %s %s %s)
+        query = f"""
+INSERT INTO {self.table} (title, summary, context, day, month, year, url)
+VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
         cursor.execute(
             query,
@@ -60,6 +83,7 @@ VALUES (%s %s %s %s %s %s)
                 event.day,
                 event.month,
                 event.year,
+                event.url_id,
             ),
         )
         self.connection.commit()
@@ -69,8 +93,8 @@ VALUES (%s %s %s %s %s %s)
 
         query = f"""
 INSERT INTO {self.table}
-(title, summary, context, day, month, year)
-VALUES (%s, %s, %s, %s, %s, %s)
+(title, summary, context, day, month, year, url_id)
+VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
         cursor.executemany(
             query,
@@ -82,6 +106,7 @@ VALUES (%s, %s, %s, %s, %s, %s)
                     event.day,
                     event.month,
                     event.year,
+                    event.url_id,
                 )
                 for event in events
             ],

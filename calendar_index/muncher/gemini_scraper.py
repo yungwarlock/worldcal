@@ -30,7 +30,7 @@ def before_log():
     wait=wait_fixed(120),  # wait 2 minutes between retries
     # stop=stop_after_attempt(20) + wait_exponential(multiplier=1, min=5, max=80),
 )
-def extract_all_events(prompt: str):
+def extract_all_events(prompt: str, url_id: int):
     genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
     model = genai.GenerativeModel("models/gemini-pro")
 
@@ -55,6 +55,7 @@ def extract_all_events(prompt: str):
             year=int(item.get("year", "0")),
             summary=item.get("summary", ""),
             month=int(item.get("month", "0")),
+            url_id=url_id,
         )
         for item in data
     ]

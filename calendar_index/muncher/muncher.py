@@ -13,10 +13,10 @@ from gemini_scraper import extract_all_events
 def get_page_events():
     storage = Storage.from_environment_variables()
 
-    urls = storage.get_urls_from_range(0, 50)
+    url_items = storage.get_unscheduled_urls()
 
-    for url in urls:
-        page_data = get_page_text(url)
+    for item in url_items:
+        page_data = get_page_text(item["url"])
 
         if not page_data:
             continue
@@ -24,11 +24,9 @@ def get_page_events():
         docs = split_text(page_data)
         emph_docs = [t for t in docs if text_contain_dates(t.page_content)]
 
-        all_data = []
         for text in emph_docs:
-            events = extract_all_events(text.page_content)
+            events = extract_all_events(text.page_content, item["id"])
             storage.add_bulk_event(events)
-            [all_data.append(e) for e in events]
 
     # create_table_artifact(
     #     key=url,

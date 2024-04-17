@@ -9,4 +9,5 @@ class Event(BaseModel):
     day: int
     title: str
     summary: str
+    url_id: int
     context: Dict[str, Any] = {}

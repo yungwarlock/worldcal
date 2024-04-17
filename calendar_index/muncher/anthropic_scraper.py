@@ -32,7 +32,7 @@ def before_log():
     wait=wait_fixed(120),  # wait 2 minutes between retries
     # stop=stop_after_attempt(20) + wait_exponential(multiplier=1, min=5, max=80),
 )
-def extract_all_events(text: str):
+def extract_all_events(text: str, url_id: int):
     client = anthropic.Anthropic()
 
     max_tokens = 3000
@@ -73,6 +73,7 @@ def extract_all_events(text: str):
             year=int(item.get("year", "0")),
             summary=item.get("summary", ""),
             month=int(item.get("month", "0")),
+            url_id=url_id,
         )
         for item in res
     ]
