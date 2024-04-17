@@ -4,7 +4,6 @@ from io import TextIOWrapper
 from typing import Hashable, Dict, List
 
 import psycopg2
-from prefect import task
 
 from models import URL
 
@@ -94,7 +93,7 @@ class Storage:
         self.connection.commit()
         cursor.close()
 
-    def save_urls(self, json_manager: JSONLManager):
+    def add_urls_from_jsonl(self, json_manager: JSONLManager):
         batch_size = 10
 
         current_batch = 0
@@ -133,20 +132,3 @@ class Storage:
 
             self.connection.commit()
             cursor.close()
-
-    @task
-    def check_url_exists(self, url: str) -> bool:
-        cursor = self.connection.cursor()
-
-        query = f"""
-        SELECT EXISTS(SELECT 1 FROM {self.table} WHERE url = %s)
-        """
-
-        cursor.execute(query, (url,))
-        result = cursor.fetchone()
-        if not result:
-            return False
-        result = result[0]
-        cursor.close()
-
-        return result
