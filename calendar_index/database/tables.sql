@@ -21,10 +21,3 @@ CREATE TABLE calendar_index (
   status job_status NOT NULL DEFAULT 'not_scheduled',
   date_added TIMESTAMP NOT NULL DEFAULT NOW()
 );
-
-CREATE TABLE munching_jobs (
-  id SERIAL PRIMARY KEY,
-  items JSONB NOT NULL, -- JSON
-  status job_status NOT NULL DEFAULT 'not_scheduled',
-  date_added TIMESTAMP NOT NULL DEFAULT NOW()
-);
