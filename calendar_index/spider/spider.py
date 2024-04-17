@@ -1,6 +1,8 @@
 import tempfile
 
 from prefect import flow
+from datetime import timedelta, datetime
+from prefect.client.schemas.schedules import IntervalSchedule
 
 from storage import JSONLManager, Storage
 from extract_urls import extract_all_urls
@@ -19,4 +21,11 @@ def spider(url: str):
 
 
 if __name__ == "__main__":
-    spider.serve(name="spider")  # type: ignore
+    spider.serve(
+        name="spider",
+        schedule=IntervalSchedule(
+            timezone="America/Chicago",
+            interval=timedelta(minutes=10),
+            anchor_date=datetime(2024, 3, 1, 0, 0),
+        ),
+    )  # type: ignore

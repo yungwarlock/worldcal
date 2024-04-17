@@ -56,15 +56,15 @@ LIMIT %s
             for x in cursor.fetchall()
         ]
 
-    def batch_set_url_completed(self, url: List[int]):
+    def batch_set_url_completed(self, url_ids: List[int]):
         cursor = self.connection.cursor()
 
         query = f"""
 UPDATE {self.spider_table}
 SET status = 'completed'
-WHERE url = %s
+WHERE id = %s
         """
-        cursor.executemany(query, [(x,) for x in url])
+        cursor.executemany(query, [(x,) for x in url_ids])
         self.connection.commit()
 
     def add_event(self, event: Event):

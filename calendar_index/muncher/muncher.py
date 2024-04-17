@@ -1,4 +1,6 @@
 from prefect import flow
+from datetime import timedelta, datetime
+from prefect.client.schemas.schedules import IntervalSchedule
 # from prefect.artifacts import create_table_artifact
 
 from storage import Storage
@@ -28,6 +30,8 @@ def get_page_events():
             events = extract_all_events(text.page_content, item["id"])
             storage.add_bulk_event(events)
 
+    storage.batch_set_url_completed(url_ids=[x["id"] for x in url_items])
+
     # create_table_artifact(
     #     key=url,
     #     table=all_data,
@@ -36,5 +40,12 @@ def get_page_events():
 
 
 if __name__ == "__main__":
-    get_page_events.serve(name="get_page_events")  # type: ignore
+    get_page_events.serve(
+        name="get_page_events",
+        schedule=IntervalSchedule(
+            timezone="America/Chicago",
+            interval=timedelta(minutes=10),
+            anchor_date=datetime(2024, 3, 1, 0, 0),
+        ),
+    )  # type: ignore
     # get_page_events()
