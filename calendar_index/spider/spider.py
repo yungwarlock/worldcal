@@ -1,7 +1,7 @@
 import tempfile
+from datetime import timedelta, datetime
 
 from prefect import flow
-from datetime import timedelta, datetime
 from prefect.client.schemas.schedules import IntervalSchedule
 
 from storage import JSONLManager, Storage

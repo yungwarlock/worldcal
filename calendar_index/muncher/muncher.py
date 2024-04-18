@@ -1,14 +1,15 @@
-from prefect import flow
 from datetime import timedelta, datetime
-from prefect.client.schemas.schedules import IntervalSchedule
+
+from prefect import flow
 # from prefect.artifacts import create_table_artifact
+from prefect.client.schemas.schedules import IntervalSchedule
 
 from storage import Storage
 from find_dates import text_contain_dates
 from utils import get_page_text, split_text
 
-# from anthropic_scraper import extract_all_events
 from gemini_scraper import extract_all_events
+# from anthropic_scraper import extract_all_events
 
 
 @flow
