@@ -1,0 +1,10 @@
+app = "worldcal-wikipedia-spider"
+primary_region = "ams"
+
+[build]
+  image = "registry.fly.io/worldcal-wikipedia-spider:latest"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

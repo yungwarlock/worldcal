@@ -11,9 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     # Set job outputs to values from filter step
     outputs:
-        spider: ${{ steps.filter.outputs.spider }}
-        muncher: ${{ steps.filter.outputs.muncher }}
-        critiquer: ${{ steps.filter.outputs.critiquer }}
+      spider: ${{ steps.filter.outputs.spider }}
+      muncher: ${{ steps.filter.outputs.muncher }}
+      critiquer: ${{ steps.filter.outputs.critiquer }}
+      wikipedia_spider: ${{ steps.filter.outputs.wikipedia_spider }}
     steps:
     - uses: actions/checkout@v4
     - uses: dorny/paths-filter@v3
@@ -38,6 +39,12 @@ jobs:
               - 'calendar_index/Dockerfile'
               - 'calendar_index/poetry.lock'
               - 'calendar_index/pyproject.toml'
+            wikipedia_spider:
+              - 'calendar_index/start.sh'
+              - 'calendar_index/Dockerfile'
+              - 'calendar_index/poetry.lock'
+              - 'calendar_index/pyproject.toml'
+              - 'calendar_index/wikipedia_spider/**'
   
               
   deploy_muncher:
@@ -154,5 +161,44 @@ jobs:
 
       - run: flyctl deploy
         working-directory: ./calendar_index/critiquer
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+  deploy_wikipedia_spider:
+    name: Deploy Wikipedia Spider
+    runs-on: ubuntu-latest
+    concurrency: deploy-group    # optional: ensure only one action runs at a time
+
+    # run if the directory changes
+    needs: changes
+    if: ${{ needs.changes.outputs.wikipedia_spider == 'true' }}
+
+    env:
+      FLY_APP: worldcal-wikipedia-spider
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+        with:
+          version: latest
+
+      - run: flyctl auth docker
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          context: ./calendar_index
+          file: ./calendar_index/Dockerfile
+          build-args: |-
+            APP=wikipedia_spider
+          tags: registry.fly.io/${{ env.FLY_APP }}:latest
+
+      - run: flyctl deploy
+        working-directory: ./calendar_index/wikipedia_spider
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
