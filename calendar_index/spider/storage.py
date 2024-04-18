@@ -34,7 +34,7 @@ class JSONLManager:
         self._fd = fd
         self.num_lines = 0
 
-    def write(self, data):
+    def write(self, data: Dict[str, str]):
         self._fd.write(json.dumps(data) + "\n")
         self.num_lines += 1
 

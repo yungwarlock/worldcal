@@ -1,11 +1,13 @@
 import re
 import requests
+from typing import List
 from multiprocessing.pool import ThreadPool
 
 import numpy as np
 from prefect import task
 from bs4 import BeautifulSoup
 
+from models import URL
 from utils import check_is_banned_url
 from storage import JSONLManager, BloomFilter
 
@@ -13,6 +15,7 @@ from storage import JSONLManager, BloomFilter
 @task
 def extract_all_urls(url, json_writer: JSONLManager, max_depth=2):
     bloom_filter = BloomFilter()
+    origin_url = url
 
     def process_url(url: str):
         res = set()
@@ -35,19 +38,29 @@ def extract_all_urls(url, json_writer: JSONLManager, max_depth=2):
         except Exception:
             return res
 
-        data = []
+        data: List[URL] = []
         for link in res:
             data.append(
                 {
                     "url": link,
                     "title": "",
-                    "hash": abs(hash(link)),
-                    "previous_node_hash": abs(hash(url)),
+                    "hash": str(abs(hash(link))),
+                    "previous_node_hash": "origin"
+                    if url == origin_url
+                    else str(abs(hash(url))),
                 }
             )
         return data
 
     prev = set([url])
+    json_writer.write(
+        {
+            "url": url,
+            "title": "",
+            "hash": str(abs(hash(url))),
+            "previous_node_hash": "origin",
+        },
+    )
     while max_depth > 0:
         with ThreadPool() as pool:
             results = pool.map(process_url, prev)

@@ -1,9 +1,7 @@
 import datetime
+from typing import TypedDict
 
-from pydantic import BaseModel
-
-
-class URL(BaseModel):
+class URL(TypedDict):
     hash: str
     url: str
     title: str
