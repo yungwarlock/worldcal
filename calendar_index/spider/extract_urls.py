@@ -64,8 +64,8 @@ def extract_all_urls(url, json_writer: JSONLManager, max_depth=2):
     while max_depth > 0:
         with ThreadPool() as pool:
             results = pool.map(process_url, prev)
-            all_store = np.concatenate(([], *results), axis=None)
-            prev_x = np.concatenate(([], *results), axis=None)
+            all_store = np.concatenate(([], *results), axis=None) # type: ignore
+            prev_x = np.concatenate(([], *results), axis=None) # type: ignore
             prev = np.array([x["url"] for x in prev_x])
             json_writer.write_many(list(all_store))
         max_depth -= 1

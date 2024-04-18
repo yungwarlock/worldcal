@@ -1,4 +1,3 @@
-import datetime
 from typing import TypedDict
 
 class URL(TypedDict):
@@ -6,4 +5,3 @@ class URL(TypedDict):
     url: str
     title: str
     previous_node_hash: str
-    date_added: datetime.datetime

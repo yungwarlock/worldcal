@@ -83,10 +83,10 @@ class Storage:
         cursor.execute(
             query,
             (
-                event.hash,
-                event.url,
-                event.title,
-                event.previous_node_hash,
+                event["hash"],
+                event["url"],
+                event["title"],
+                event["previous_node_hash"],
             ),
         )
 
