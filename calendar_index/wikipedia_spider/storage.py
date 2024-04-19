@@ -1,7 +1,7 @@
 import os
 import json
 from io import TextIOWrapper
-from typing import Hashable, Dict, List
+from typing import Hashable, List
 
 import psycopg2
 
@@ -34,14 +34,14 @@ class JSONLManager:
         self._fd = fd
         self.num_lines = 0
 
-    def write(self, data):
+    def write(self, data: URL):
         self._fd.write(json.dumps(data) + "\n")
         self.num_lines += 1
 
     def respool(self):
         self._fd.seek(0)
 
-    def write_many(self, data: List[Dict[str, str]]):
+    def write_many(self, data: List[URL]):
         self._fd.writelines(json.dumps(item) + "\n" for item in data)
         self.num_lines += len(data)
 
@@ -76,8 +76,8 @@ class Storage:
         cursor = self.connection.cursor()
 
         query = f"""
-        INSERT INTO {self.table} (hash, url, title, previous_node_hash)
-        VALUES (%s, %s, %s, %s);
+INSERT INTO {self.table} (hash, url, previous_node_hash)
+VALUES (%s, %s, %s);
         """
 
         cursor.execute(
@@ -85,7 +85,6 @@ class Storage:
             (
                 event["hash"],
                 event["url"],
-                event["title"],
                 event["previous_node_hash"],
             ),
         )
@@ -113,8 +112,8 @@ class Storage:
             cursor = self.connection.cursor()
 
             query = f"""
-            INSERT INTO {self.table} (hash, url, title, previous_node_hash)
-            VALUES (%s, %s, %s, %s);
+INSERT INTO {self.table} (hash, url, previous_node_hash)
+VALUES (%s, %s, %s);
             """
 
             cursor.executemany(
@@ -123,7 +122,6 @@ class Storage:
                     (
                         event["hash"],
                         event["url"],
-                        event["title"],
                         event["previous_node_hash"],
                     )
                     for event in batch
