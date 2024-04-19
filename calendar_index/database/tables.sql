@@ -5,6 +5,7 @@ CREATE TABLE spider_index  (
   hash TEXT NOT NULL,
   title TEXT NOT NULL,
   url TEXT NOT NULL,
+  category TEXT NOT NULL,
   date_added TIMESTAMP NOT NULL DEFAULT NOW(),
   status job_status NOT NULL DEFAULT 'not_scheduled',
   previous_node_hash TEXT NOT NULL DEFAULT 'origin'
@@ -19,7 +20,6 @@ CREATE TABLE calendar_index (
   day INT NOT NULL,
   month INT NOT NULL,
   year INT NOT NULL,
-  status job_status NOT NULL DEFAULT 'not_scheduled',
   date_added TIMESTAMP NOT NULL DEFAULT NOW(),
   FOREIGN KEY (url_id) REFERENCES spider_index(id)
 );
