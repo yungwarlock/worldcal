@@ -23,9 +23,4 @@ def wikipedia_spider(url: str):
 if __name__ == "__main__":
     wikipedia_spider.serve(
         name="wikipedia_spider",
-        schedule=IntervalSchedule(
-            timezone="America/Chicago",
-            interval=timedelta(minutes=10),
-            anchor_date=datetime(2024, 3, 1, 0, 0),
-        ),
     )  # type: ignore
