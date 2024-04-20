@@ -19,8 +19,6 @@ def wikipedia_spider(url: str):
 
 
 if __name__ == "__main__":
-    url = "https://en.wikipedia.org/wiki/Elon_Musk"
-    wikipedia_spider(url)
-    # .serve(
-    #     name="wikipedia_spider",
-    # )  # type: ignore
+    wikipedia_spider.serve(
+            name="wikipedia_spider",
+        )  # type: ignore

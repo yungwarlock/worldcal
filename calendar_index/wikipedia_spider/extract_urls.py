@@ -8,9 +8,7 @@ from prefect import task
 from bs4 import BeautifulSoup
 
 from models import URL
-from utils import batch_array
 from storage import JSONLManager, BloomFilter
-from extract_labels import batch_get_url_category
 
 
 @task
@@ -44,7 +42,6 @@ def extract_all_urls(url, json_writer: JSONLManager, max_depth=2):
                 {
                     "url": link,
                     "hash": str(abs(hash(link))),
-                    "category": "None",
                     "previous_node_hash": "origin"
                     if url == origin_url
                     else str(abs(hash(url))),
@@ -56,7 +53,6 @@ def extract_all_urls(url, json_writer: JSONLManager, max_depth=2):
     json_writer.write(
         {
             "url": url,
-            "category": "None",
             "hash": str(abs(hash(url))),
             "previous_node_hash": "origin",
         },
@@ -69,8 +65,5 @@ def extract_all_urls(url, json_writer: JSONLManager, max_depth=2):
             prev = np.array([x["url"] for x in new_prev])
 
             all_store = np.concatenate(([], *results), axis=None) # type: ignore
-
-            for url in batch_array(all_store):
-                urls_with_categories = batch_get_url_category(all_store)
-                json_writer.write_many(urls_with_categories)
+            json_writer.write_many(all_store)
         max_depth -= 1
