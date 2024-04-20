@@ -118,6 +118,8 @@ jobs:
           file: ./calendar_index/Dockerfile
           build-args: |-
             APP=spider
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: registry.fly.io/${{ env.FLY_APP }}:latest
 
       - run: flyctl deploy
@@ -157,6 +159,8 @@ jobs:
           file: ./calendar_index/Dockerfile
           build-args: |-
             APP=critiquer
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: registry.fly.io/${{ env.FLY_APP }}:latest
 
       - run: flyctl deploy
@@ -196,6 +200,8 @@ jobs:
           file: ./calendar_index/Dockerfile
           build-args: |-
             APP=wikipedia_spider
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: registry.fly.io/${{ env.FLY_APP }}:latest
 
       - run: flyctl deploy

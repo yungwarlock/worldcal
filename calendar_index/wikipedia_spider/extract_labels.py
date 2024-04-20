@@ -4,13 +4,16 @@ import json
 from typing import List, Dict
 from urllib.parse import unquote
 
+import nltk
 import openai
 import wikipedia
 from prefect import task
+from nltk.tokenize import sent_tokenize
 from tenacity import retry, stop_after_attempt
 
 from models import URL
 
+nltk.download('punkt')
 
 @task
 @retry(stop=stop_after_attempt(10), before_sleep=lambda x: print("Retrying..."))
@@ -48,7 +51,7 @@ Output as JSON list with the properties:
             {"role": "user", "content": prompt},
         ],
         temperature=0.1,
-        max_tokens=4096,
+        max_tokens=1000,
     )
     # print("response:", response.choices[0].message.content)
     # print(response.usage.json())
@@ -70,7 +73,9 @@ def batch_get_url_category(urls: List[URL]) -> List[URL]:
             page_id = unquote(page_id)
             page = wikipedia.page(page_id, auto_suggest=False)
 
-            items.append(f"{item['hash']} - {page.summary}")
+            summary = sent_tokenize(page.summary)[:3]
+
+            items.append(f"{item['hash']} - {' '.join(summary) + '...'}")
             res_items[str(item["hash"])] = item
         except wikipedia.DisambiguationError:
             continue

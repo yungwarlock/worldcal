@@ -10,7 +10,7 @@ from extract_urls import extract_all_urls
 def wikipedia_spider(url: str):
     storage = Storage.from_environment_variables()
     with tempfile.NamedTemporaryFile(dir="/tmp", mode="w+") as temp_fd:
-        # print("tempfile_name:", temp_fd.name)
+        print("tempfile_name:", temp_fd.name)
         json_manager = JSONLManager(temp_fd)  # type: ignore
         extract_all_urls(url, json_manager)
 
@@ -19,6 +19,8 @@ def wikipedia_spider(url: str):
 
 
 if __name__ == "__main__":
-    wikipedia_spider.serve(
-        name="wikipedia_spider",
-    )  # type: ignore
+    url = "https://en.wikipedia.org/wiki/Elon_Musk"
+    wikipedia_spider(url)
+    # .serve(
+    #     name="wikipedia_spider",
+    # )  # type: ignore
