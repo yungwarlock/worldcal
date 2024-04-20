@@ -45,7 +45,7 @@ class Storage:
         query = f"""
 SELECT id, url FROM {self.spider_table}
 WHERE status = 'not_scheduled'
-AND category IS NOT ANY (ARRAY['None', 'unknown'])
+AND category = ALL(ARRAY['None', 'unknown'])
 LIMIT %s
         """
         cursor.execute(query, (limit,))

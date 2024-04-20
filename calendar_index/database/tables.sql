@@ -3,7 +3,6 @@ CREATE TYPE job_status AS ENUM ('not_scheduled', 'scheduled', 'completed', 'fail
 CREATE TABLE spider_index  (
   id SERIAL PRIMARY KEY,
   hash TEXT NOT NULL,
-  title TEXT NOT NULL,
   url TEXT NOT NULL,
   category TEXT NOT NULL DEFAULT 'unknown',
   date_added TIMESTAMP NOT NULL DEFAULT NOW(),

@@ -37,7 +37,7 @@ class Storage:
         query = f"""
 SELECT id, url
 FROM {self.table}
-WHERE category IS 'unknown'
+WHERE category = 'unknown'
 LIMIT %s
 """
 
