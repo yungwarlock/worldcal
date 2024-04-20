@@ -45,7 +45,7 @@ class Storage:
         query = f"""
 SELECT id, url FROM {self.spider_table}
 WHERE status = 'not_scheduled'
-AND category = ALL(ARRAY['None', 'unknown'])
+AND category != ALL(ARRAY['None', 'unknown'])
 LIMIT %s
         """
         cursor.execute(query, (limit,))
@@ -56,6 +56,28 @@ LIMIT %s
             }
             for x in cursor.fetchall()
         ]
+
+    def set_url_scheduled(self, url_id: int):
+        cursor = self.connection.cursor()
+
+        query = f"""
+UPDATE {self.spider_table}
+SET status = 'scheduled'
+WHERE id = %s
+        """
+        cursor.execute(query, (url_id,))
+        self.connection.commit()
+    
+    def set_url_unscheduled(self, url_id: int):
+        cursor = self.connection.cursor()
+
+        query = f"""
+UPDATE {self.spider_table}
+SET status = 'not_scheduled'
+WHERE id = %s
+        """
+        cursor.execute(query, (url_id,))
+        self.connection.commit()
 
     def batch_set_url_completed(self, url_ids: List[int]):
         cursor = self.connection.cursor()

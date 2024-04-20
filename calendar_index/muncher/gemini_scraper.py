@@ -20,7 +20,7 @@ Output in JSON. It will be a list of events. Each item should have the following
 """
 
 
-def before_log():
+def before_log(*args, **kwargs):
     print("retrying...")
 
 

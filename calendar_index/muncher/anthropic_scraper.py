@@ -22,7 +22,7 @@ If the text does not contain any notable event. Output an empty array
 """
 
 
-def before_log():
+def before_log(*args, **kwargs):
     print("retrying...")
 
 

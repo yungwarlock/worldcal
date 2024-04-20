@@ -19,19 +19,23 @@ def get_page_events():
     url_items = storage.get_unscheduled_urls()
 
     for item in url_items:
-        page_data = get_page_text(item["url"])
+        storage.set_url_scheduled(item["id"])
 
-        if not page_data:
+        try:
+            page_data = get_page_text(item["url"])
+
+            if not page_data:
+                continue
+
+            docs = split_text(page_data)
+            emph_docs = [t for t in docs if text_contain_dates(t.page_content)]
+
+            for text in emph_docs:
+                events = extract_all_events(text.page_content, item["id"])
+                storage.add_bulk_event(events)
+        except Exception:
+            storage.set_url_unscheduled(item["id"])
             continue
-
-        docs = split_text(page_data)
-        emph_docs = [t for t in docs if text_contain_dates(t.page_content)]
-
-        for text in emph_docs:
-            events = extract_all_events(text.page_content, item["id"])
-            storage.add_bulk_event(events)
-
-    storage.batch_set_url_completed(url_ids=[x["id"] for x in url_items])
 
     # create_table_artifact(
     #     key=url,
@@ -41,12 +45,13 @@ def get_page_events():
 
 
 if __name__ == "__main__":
-    get_page_events.serve(
-        name="get_page_events",
-        schedule=IntervalSchedule(
-            timezone="America/Chicago",
-            interval=timedelta(minutes=10),
-            anchor_date=datetime(2024, 3, 1, 0, 0),
-        ),
-    )  # type: ignore
-    # get_page_events()
+    get_page_events()
+    # .serve(
+    #     name="get_page_events",
+    #     schedule=IntervalSchedule(
+    #         timezone="America/Chicago",
+    #         interval=timedelta(minutes=10),
+    #         anchor_date=datetime(2024, 3, 1, 0, 0),
+    #     ),
+    # )  # type: ignore
+    # # get_page_events()
