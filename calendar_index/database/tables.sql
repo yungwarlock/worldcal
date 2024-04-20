@@ -5,7 +5,7 @@ CREATE TABLE spider_index  (
   hash TEXT NOT NULL,
   title TEXT NOT NULL,
   url TEXT NOT NULL,
-  category TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT 'unknown',
   date_added TIMESTAMP NOT NULL DEFAULT NOW(),
   status job_status NOT NULL DEFAULT 'not_scheduled',
   previous_node_hash TEXT NOT NULL DEFAULT 'origin'
