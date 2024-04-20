@@ -40,10 +40,7 @@ services:
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     volumes:
        - ./data/pgadmin:/var/lib/pgadmin
-    ports:
-      - "${PGADMIN_PORT:-8080}:80"
-    networks:
-      - postgres
+    network_mode: host
     depends_on:
       - db
 
