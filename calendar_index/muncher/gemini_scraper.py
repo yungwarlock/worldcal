@@ -3,7 +3,7 @@ import json
 
 from prefect import task
 import google.generativeai as genai
-from tenacity import retry, wait_fixed
+from tenacity import retry, wait_fixed, stop_after_attempt
 
 from event import Event
 from utils import extract_data
@@ -27,7 +27,8 @@ def before_log(*args, **kwargs):
 @task
 @retry(
     before_sleep=before_log,  # type: ignore
-    wait=wait_fixed(120),  # wait 2 minutes between retries
+    wait=wait_fixed(30),  # wait 2 minutes between retries
+    stop=stop_after_attempt(3),
     # stop=stop_after_attempt(20) + wait_exponential(multiplier=1, min=5, max=80),
 )
 def extract_all_events(prompt: str, url_id: int):

@@ -13,7 +13,7 @@ from gemini_scraper import extract_all_events
 
 
 @flow
-def get_page_events():
+def muncher():
     storage = Storage.from_environment_variables()
 
     url_items = storage.get_unscheduled_urls()
@@ -45,13 +45,11 @@ def get_page_events():
 
 
 if __name__ == "__main__":
-    get_page_events()
-    # .serve(
-    #     name="get_page_events",
-    #     schedule=IntervalSchedule(
-    #         timezone="America/Chicago",
-    #         interval=timedelta(minutes=10),
-    #         anchor_date=datetime(2024, 3, 1, 0, 0),
-    #     ),
-    # )  # type: ignore
-    # # get_page_events()
+    muncher.serve(
+        name="get_events",
+        schedule=IntervalSchedule(
+            timezone="America/Chicago",
+            interval=timedelta(minutes=10),
+            anchor_date=datetime(2024, 3, 1, 0, 0),
+        ),
+    )  # type: ignore
