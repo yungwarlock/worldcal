@@ -1,8 +1,8 @@
 import os
 import json
 
-from prefect import task
 import google.generativeai as genai
+from prefect import task, get_run_logger
 from tenacity import retry, wait_fixed, stop_after_attempt
 
 from event import Event
@@ -35,17 +35,19 @@ def extract_all_events(prompt: str, url_id: int):
     genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
     model = genai.GenerativeModel("models/gemini-pro")
 
+    logger = get_run_logger()
+
     text = f"{system_content}/n{prompt}"
 
     response = model.generate_content(text)
-    print("saftey:", response.prompt_feedback)
     if response.prompt_feedback or not response.parts:
+        logger.info("saftey: %s" % response.prompt_feedback)
         return []
     data = extract_data(response.text)
-    print("data:", data)
+    logger.debug("data:", data)
     if not data:
         return []
-    print("data:", data[0])
+    logger.debug("data:", data[0])
     data = json.loads(data[0])
 
     events = [
