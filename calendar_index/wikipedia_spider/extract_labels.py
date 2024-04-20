@@ -2,6 +2,7 @@ import re
 import os
 import json
 from typing import List, Dict
+from urllib.parse import unquote
 
 import openai
 import wikipedia
@@ -63,15 +64,19 @@ def batch_get_url_category(urls: List[URL]) -> List[URL]:
 
     res_items: Dict[str, URL] = {}
     for item in urls:
-        pattern = r"/wiki/(.*)"
-        page_id = re.search(pattern, item["url"]).group(1) # type: ignore
-        page = wikipedia.page(page_id, auto_suggest=False)
+        try:
+            pattern = r"/wiki/(.*)"
+            page_id = re.search(pattern, item["url"]).group(1) # type: ignore
+            page_id = unquote(page_id)
+            page = wikipedia.page(page_id, auto_suggest=False)
 
-        items.append(f"{item['hash']} - {page.summary}")
-        res_items[item["hash"]] = item
+            items.append(f"{item['hash']} - {page.summary}")
+            res_items[str(item["hash"])] = item
+        except wikipedia.DisambiguationError:
+            continue
 
     categories = batch_categorize_text_together("\n".join(items))
     for category in categories:
-        res_items[category["hash"]]["category"] = category["category"]
+        res_items[str(category["id"])]["category"] = category["category"]
 
     return res_items.values() # type: ignore

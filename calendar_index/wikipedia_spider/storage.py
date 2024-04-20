@@ -112,8 +112,8 @@ VALUES (%s, %s, %s);
             cursor = self.connection.cursor()
 
             query = f"""
-INSERT INTO {self.table} (hash, url, previous_node_hash)
-VALUES (%s, %s, %s);
+INSERT INTO {self.table} (hash, url, category, previous_node_hash)
+VALUES (%s, %s, %s, %s);
             """
 
             cursor.executemany(
@@ -122,6 +122,7 @@ VALUES (%s, %s, %s);
                     (
                         event["hash"],
                         event["url"],
+                        event["category"],
                         event["previous_node_hash"],
                     )
                     for event in batch
