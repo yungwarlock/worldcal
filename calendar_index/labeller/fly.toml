@@ -1,0 +1,10 @@
+app = "worldcal-labeller"
+primary_region = "ams"
+
+[build]
+  image = "registry.fly.io/worldcal-labeller:latest"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
