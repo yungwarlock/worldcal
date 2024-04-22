@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime
 
-from prefect import flow
+from prefect import flow, get_run_logger
 from prefect.client.schemas.schedules import IntervalSchedule
 
 from storage import Storage
@@ -9,9 +9,12 @@ from extract_labels import batch_get_url_category
 
 @flow
 def label():
+    logger = get_run_logger()
     storage = Storage.from_environment_variables()
 
     urls = storage.get_urls_without_category()
+    logger.debug("urls: %s" % urls)
+
     new_urls = batch_get_url_category(urls)
     storage.batch_update_categories(new_urls)
 

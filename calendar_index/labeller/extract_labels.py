@@ -5,10 +5,10 @@ from typing import List, Dict
 from urllib.parse import unquote
 
 import nltk
-import openai
 import wikipedia
-from prefect import task
+import google.generativeai as genai
 from nltk.tokenize import word_tokenize
+from prefect import task, get_run_logger
 from tenacity import retry, stop_after_attempt
 
 from models import URL
@@ -37,28 +37,23 @@ Output as JSON list with the properties:
 - id
 - category
     """
+    genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
+    model = genai.GenerativeModel("models/gemini-pro")
 
-    client = openai.OpenAI(
-        base_url="https://api.together.xyz/v1",
-        api_key=os.environ.get("TOGETHER_API_KEY"),
-    )
-    # print("TEXT: ", prompt)
+    logger = get_run_logger()
 
-    response = client.chat.completions.create(
-        model="meta-llama/Llama-3-70b-chat-hf",
-        messages=[
-            {"role": "system", "content": system_message},
-            {"role": "user", "content": prompt},
-        ],
-        temperature=0.1,
-        max_tokens=1000,
-    )
-    # print("response:", response.choices[0].message.content)
-    # print(response.usage.json())
+    text = f"{system_message}\n\n{prompt}"
 
-    res = response.choices[0].message.content
-    data = re.search(r"```(.*)```", res, re.S).group(1) # type: ignore
+    logger.debug("prompt: %s" % text)
 
+    response = model.generate_content(text)
+    if response.prompt_feedback or not response.parts:
+        logger.info("saftey: %s" % response.prompt_feedback)
+        return []
+
+    logger.debug("response: %s" % response.text)
+    data = re.search(r"```json(.*)```", response.text, re.S | re.I).group(1) # type: ignore
+    logger.debug("data: %s" % data)
     return json.loads(data)
 
 @task
@@ -82,6 +77,9 @@ def batch_get_url_category(urls: List[URL]) -> List[URL]:
             res_items[str(item["id"])] = item
         except wikipedia.DisambiguationError:
             continue
+
+    if not items:
+        return []
 
     categories = batch_categorize_text_together("\n".join(items))
     for category in categories:
