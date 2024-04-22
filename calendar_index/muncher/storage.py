@@ -68,7 +68,29 @@ WHERE id = %s
         """
         cursor.execute(query, (url_id,))
         self.connection.commit()
-    
+
+    def set_url_completed(self, url_id: int):
+        cursor = self.connection.cursor()
+
+        query = f"""
+UPDATE {self.spider_table}
+SET status = 'completed'
+WHERE id = %s
+        """
+        cursor.execute(query, (url_id,))
+        self.connection.commit()
+
+    def set_url_failed(self, url_id: int):
+        cursor = self.connection.cursor()
+
+        query = f"""
+UPDATE {self.spider_table}
+SET status = 'failed'
+WHERE id = %s
+        """
+        cursor.execute(query, (url_id,))
+        self.connection.commit()
+
     def set_url_unscheduled(self, url_id: int):
         cursor = self.connection.cursor()
 

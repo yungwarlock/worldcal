@@ -33,8 +33,9 @@ def muncher():
             for text in emph_docs:
                 events = extract_all_events(text.page_content, item["id"])
                 storage.add_bulk_event(events)
+            storage.set_url_completed(item["id"])
         except Exception:
-            storage.set_url_unscheduled(item["id"])
+            storage.set_url_failed(item["id"])
             continue
 
     # create_table_artifact(
