@@ -20,8 +20,11 @@ ARG APP
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get install -y ca-certificates iptables iproute2 \
+    && apt-get install -y ca-certificates iptables iproute2 s3fs \
     && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /data/worldcal
+ENV WORLDCAL_FS=/data/worldcal
 
 ENV VIRTUAL_ENV=/app/.venv \
     PATH="/app/.venv/bin:$PATH"

@@ -34,6 +34,15 @@ cleanup() {
   fi
 }
 
+echo "$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY" > ${HOME}/.passwd-s3fs
+chmod 600 ${HOME}/.passwd-s3fs
+
+s3fs \
+  the-world-calendar-bbfs /data/worldcal \
+  -o passwd_file=${HOME}/.passwd-s3fs \
+  -o url=${AWS_ENDPOINT_URL}
+#  -o dbglevel=info -f -o curldbg &
+
 trap cleanup INT
 trap cleanup TERM
 
