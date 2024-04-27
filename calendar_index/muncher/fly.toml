@@ -1,5 +1,6 @@
 app = "worldcal-muncher"
 primary_region = "ams"
+swap_size_mb = 512
 
 # [http_service]
 #   internal_port = 8080

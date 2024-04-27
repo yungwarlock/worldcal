@@ -3,12 +3,6 @@
 # Check if it is running in fly.io
 
 if [ -n "$FLY_APP_NAME" ]; then
-  fallocate -l 512M /swapfile
-  chmod 0600 /swapfile
-  mkswap /swapfile
-  echo 10 > /proc/sys/vm/swappiness
-  swapon /swapfile
-
   /app/tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock &>/dev/null &
   /app/tailscale up --authkey=${TAILSCALE_AUTHKEY} --hostname=${FLY_APP_NAME}
 else
@@ -28,9 +22,7 @@ cleanup() {
 
   if [ -n "$FLY_APP_NAME" ]; then
     # Turn off swap
-    swapoff /swapfile
-    rm /swapfile
-
+    echo "Cleanup... Turn off swap"
   fi
 }
 

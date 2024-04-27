@@ -1,6 +1,8 @@
 app = "worldcal-web"
 primary_region = "ams"
 
+swap_size_mb = 512
+
 [build]
   image = "registry.fly.io/worldcal-web:latest"
 

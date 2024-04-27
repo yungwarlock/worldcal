@@ -1,6 +1,8 @@
 app = "worldcal-domain-classifier"
 primary_region = "ams"
 
+swap_size_mb = 512
+
 [build]
   image = "registry.fly.io/worldcal-domain-classifier:latest"
 

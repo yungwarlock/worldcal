@@ -1,5 +1,6 @@
 app = "worldcal-labeller"
 primary_region = "ams"
+swap_size_mb = 512
 
 [build]
   image = "registry.fly.io/worldcal-labeller:latest"
