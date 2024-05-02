@@ -39,7 +39,10 @@ def save_batch_to_database(data: Dict[str, str]):
     for url, category in data.items():
         query = f"""
     UPDATE {dataset_name}
-    SET category = '{category}'
-    WHERE fetch_redirect = '{url}'
+    SET category = ?
+    WHERE fetch_redirect = ?
         """
-        con.execute(query)
+        con.execute(query, (
+            category,
+            url,
+        ))

@@ -130,6 +130,8 @@ def batch_get_url_category(urls: Sequence[str]):
 
         except Exception as e:
             logger.error(f"Error processing {url}: {e}")
+            items.append(f"{url} - None")
+            res_items[url] = "None"
             continue
 
     if not items:
