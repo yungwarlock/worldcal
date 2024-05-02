@@ -27,7 +27,7 @@ if __name__ == "__main__":
         name="wikipedi_muncher",
         schedule=IntervalSchedule(
             timezone="America/Chicago",
-            interval=timedelta(minutes=10),
+            interval=timedelta(minutes=3),
             anchor_date=datetime(2024, 3, 1, 0, 0),
         ),
     )  # type: ignore
