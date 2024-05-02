@@ -1,9 +1,9 @@
-app = "worldcal-wikipedia-classifier"
+app = "worldcal-wikipedia-muncher"
 primary_region = "ams"
 swap_size_mb = 512
 
 [build]
-  image = "registry.fly.io/worldcal-wikipedia-classifier:latest"
+  image = "registry.fly.io/worldcal-wikipedia-muncher:latest"
 
 [[vm]]
   memory = "512mb"
