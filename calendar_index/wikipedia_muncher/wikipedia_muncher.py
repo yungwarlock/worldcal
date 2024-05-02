@@ -4,8 +4,7 @@ from prefect import flow, get_run_logger
 from prefect.client.schemas.schedules import IntervalSchedule
 
 from extract_events import extract_events
-from database import extract_batch, save_batch_to_database
-
+from database import extract_batch, save_batch_to_database, set_url_as_failed
 
 @flow
 def wikipedia_muncher():
@@ -19,7 +18,11 @@ def wikipedia_muncher():
         logger.info("Extracting events from %s", url)
 
         events = extract_events(url)
-        save_batch_to_database(events)
+        if not events:
+            logger.info("No event found in %s, adding to failed to extract", url)
+            set_url_as_failed(url)
+        else:
+            save_batch_to_database(events)
 
 
 if __name__ == "__main__":
@@ -27,7 +30,7 @@ if __name__ == "__main__":
         name="wikipedi_muncher",
         schedule=IntervalSchedule(
             timezone="America/Chicago",
-            interval=timedelta(minutes=3),
+            interval=timedelta(minutes=10),
             anchor_date=datetime(2024, 3, 1, 0, 0),
         ),
     )  # type: ignore

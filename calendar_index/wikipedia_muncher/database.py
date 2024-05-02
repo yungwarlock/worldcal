@@ -79,3 +79,20 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             for event in data
         ),
     )
+
+
+@task(
+    name="Set url as failed",
+    task_run_name="set-url-as-failed",
+)
+def set_url_as_failed(url: str):
+    """Save batch to database"""
+
+    dataset_name = "common_crawl.failed_extract"
+    con = duckdb.connect(f"md:?motherduck_token={MOTHERDUCK_TOKEN}")
+
+    query = f"""
+INSERT INTO {dataset_name} (url)
+VALUES (?)
+    """
+    con.execute(query, (url,))
