@@ -1,0 +1,11 @@
+app = 'worldcal-wikipedia-classifier'
+primary_region = 'ams'
+swap_size_mb = 512
+
+[build]
+  image = 'registry.fly.io/worldcal-wikipedia-classifier:latest'
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1
