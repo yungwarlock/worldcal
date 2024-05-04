@@ -12,6 +12,10 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from database import Event
 
 
+CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 700))
+CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 50))
+
+
 @task(
     name="Extract events from text with Llama-3",
     task_run_name="extract-events-from-text-llama3",
@@ -108,12 +112,11 @@ def extract_events(url: str) -> Generator[List[Event], None, None]:
         return
 
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=70,
         length_function=len,
+        chunk_size=CHUNK_SIZE,
         is_separator_regex=False,
+        chunk_overlap=CHUNK_OVERLAP,
     )
-
 
     docs = text_splitter.create_documents([doc])
 
