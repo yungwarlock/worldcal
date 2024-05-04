@@ -1,7 +1,7 @@
 import re
 import os
 import json
-from typing import List, Dict
+from typing import List, Dict, Generator
 
 import openai
 import trafilatura
@@ -73,8 +73,6 @@ If the text does not contain any notable event. Output an empty array
     return json.loads(data)
 
 
-
-@task
 def text_contain_dates(text):
     matches = []
     # Define the regex pattern to match dates in the formats "MM/DD/YYYY" and "YYYY-MM-DD"
@@ -99,17 +97,15 @@ def text_contain_dates(text):
     return matches
 
 
-
-@task
-def extract_events(url: str) -> List[Event]:
+def extract_events(url: str) -> Generator[List[Event], None, None]:
     logger = get_run_logger()
-    all_events: List[Event] = []
 
     page = trafilatura.fetch_url(url)
     doc = trafilatura.extract(page)
     if not doc:
         logger.error("No document found")
-        return all_events
+        yield []
+        return
 
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
@@ -124,15 +120,15 @@ def extract_events(url: str) -> List[Event]:
     for text in docs:
         if not text_contain_dates(text.page_content):
             logger.debug("No dates found in text")
-            all_events.extend([])
+            yield []
             continue
 
         extracted_events = _extract_events(text.page_content)
         if not extracted_events:
             logger.debug("No events found in text")
-            all_events.extend([])
+            yield []
         else:
-            all_events.extend([
+            yield [
                 {
                     "year": event["year"],
                     "month": event["month"],
@@ -143,6 +139,5 @@ def extract_events(url: str) -> List[Event]:
                     "context": {},
                 }
                 for event in extracted_events
-            ]) # type: ignore
-    
-    return all_events
+            ] # type: ignore
+

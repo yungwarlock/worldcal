@@ -16,13 +16,12 @@ def wikipedia_muncher():
     # Extract events
     for url in batch:
         logger.info("Extracting events from %s", url)
-
-        events = extract_events(url)
-        if not events:
-            logger.info("No event found in %s, adding to failed to extract", url)
+        try:
+            events_batches = extract_events(url)
+            for event_batch in events_batches:
+                save_batch_to_database(event_batch)
+        except Exception:
             set_url_as_failed(url)
-        else:
-            save_batch_to_database(events)
 
 
 if __name__ == "__main__":
