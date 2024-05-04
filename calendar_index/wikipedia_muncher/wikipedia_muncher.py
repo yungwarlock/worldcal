@@ -1,4 +1,5 @@
 import os
+import sentry_sdk
 from datetime import timedelta, datetime
 
 from prefect import flow, get_run_logger
@@ -7,6 +8,12 @@ from prefect.client.schemas.schedules import IntervalSchedule
 from extract_events import extract_events
 from database import extract_batch, save_batch_to_database, set_url_as_failed
 
+
+sentry_sdk.init(
+    dsn="https://c1cfcfa5e77aa8e116f77c2b9fed6c00@o4506628622123008.ingest.us.sentry.io/4507197938794496",
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+)
 
 DEBUG = os.environ.get("DEBUG", "") is True
 JOB_INTERVAL = int(os.environ.get("JOB_INTERVAL", 50))
